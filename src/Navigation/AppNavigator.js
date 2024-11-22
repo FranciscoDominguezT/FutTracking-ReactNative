@@ -7,8 +7,9 @@ import ConfigScreen from '../Screens/Home/Components/ConfigScreen';
 // import Register from '../Screens/Register';
 import Profile from '../Screens/Profile';
 // import PlayerProfile from '../Screens/PlayerProfile';
-// import FilterScreen from '../Screens/FilterScreen';
-// import SearchResults from '../Screens/SearchResults';
+import FilterScreen from '../Screens/Home/Components/FilterScreen';
+import SearchResults from '../Screens/Home/Components/SearchResultsPage';
+import SearchResultsPage from '../Screens/Home/Components/SearchResultsPage';
 // import ConfigScreen from '../Screens/ConfigScreen';
 // import ChangeRol from '../Screens/ChangeRol';
 // import Jugador from '../Screens/ChangeRol/components/Jugador';
@@ -24,10 +25,12 @@ const AppNavigator = () => {
       <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
       <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
       <Stack.Screen name="ConfigScreen" component={ConfigScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+      <Stack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Search" component={SearchResultsPage} options={{ headerShown: false }}/>
       {/* 
       <Stack.Screen name="Register" component={Register} />
-      <Stack.Screen name="Filter" component={FilterScreen} />
+
       <Stack.Screen name="ChangeRol" component={ChangeRol} />
       
       <Stack.Screen name="Jugador" component={Jugador} />
@@ -39,7 +42,7 @@ const AppNavigator = () => {
         })}
       />
       <Stack.Screen name="Reclutador" component={Reclutador} />
-      <Stack.Screen name="Search" component={SearchResults} />
+
       <Stack.Screen name="MailJugador" component={MailJugador} />
       <Stack.Screen name="MailReclutador" component={MailReclutador} /> */}
     </Stack.Navigator>

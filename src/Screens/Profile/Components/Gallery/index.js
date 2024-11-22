@@ -137,21 +137,7 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
 
   return (
     <View style={styles.gallery}>
-      <FlatList
-        data={videos}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={3}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.galleryItem} onPress={() => handleVideoClick(item)}>
-            <Image source={{ uri: item.thumbnail }} style={styles.galleryImg} />
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={() => (
-          <View style={styles.noVideosMessage}>
-            <Text>No hay videos cargados</Text>
-          </View>
-        )}
-      />
+      <GalleryGrid videos={videos} onVideoClick={handleVideoClick} />
 
       {selectedVideo && (
         <FullScreenVideo
@@ -200,7 +186,6 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
 const styles = StyleSheet.create({
   gallery: {
     flex: 1,
-    backgroundColor: 'black',
   },
   videoGrid: {
     flex: 1,

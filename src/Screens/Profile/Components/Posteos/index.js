@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, Alert, Text } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, Alert, Text, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import axios from 'axios';
 import PostDetail from '../PostDetail';
 import NewCommentModal from '../NewCommentModal';
 import NewTweetModal from '../NewTweetModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Posteos = () => {
   const [posts, setPosts] = useState([]);
@@ -17,30 +18,60 @@ const Posteos = () => {
   const [postToDelete, setPostToDelete] = useState(null);
 
   useEffect(() => {
-    fetchPosts();
-    loadLikedPosts();
+    const initializeData = async () => {
+      await loadLikedPosts();
+      await fetchPosts();
+    };
+    
+    initializeData();
   }, []);
 
   const fetchPosts = async () => {
+    // Obtener el token desde AsyncStorage
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      console.error('Token no encontrado');
+      return;
+    }
+  
+    // Realizar la solicitud a la API
+    const response = await fetch('https://open-moderately-silkworm.ngrok-free.app/api/posts', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  
+    console.log('Estado de la respuesta:', response.status);
+    console.log('Encabezados:', response.headers.map); // Muestra los encabezados de forma legible
+  
+    // Validar si la solicitud fue exitosa
+    if (!response.ok) {
+      console.error('Error en la solicitud:', response.status, response.statusText);
+      return;
+    }
+  
+    // Intentar analizar la respuesta como JSON
     try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await fetch('https://open-moderately-silkworm.ngrok-free.app/api/posts', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
       const data = await response.json();
       console.log('Posts cargados:', data);
       setPosts(data);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('Error al parsear la respuesta:', error);
     }
   };
+  
+  
 
-  const loadLikedPosts = () => {
-    const storedLikes = AsyncStorage.getItem('likedPosts');
-    if (storedLikes) {
-      setLikedPosts(JSON.parse(storedLikes));
+  const loadLikedPosts = async () => {
+    try {
+      const storedLikes = await AsyncStorage.getItem('likedPosts');
+      if (storedLikes) {
+        setLikedPosts(JSON.parse(storedLikes));
+      }
+    } catch (error) {
+      console.error('Error loading liked posts:', error);
+      setLikedPosts({});
     }
   };
 

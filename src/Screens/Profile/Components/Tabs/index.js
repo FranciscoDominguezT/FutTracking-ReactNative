@@ -10,13 +10,15 @@ const Tabs = ({ activeTab, onTabChange }) => {
     if (activeTabIndex !== -1) {
       const activeTabElement = tabRefs.current[activeTabIndex];
       if (activeTabElement) {
-        setTabPosition(activeTabElement.offsetLeft);
+        activeTabElement.measure((x, y, width, height, pageX, pageY) => {
+          setTabPosition(pageX); // Usar posición absoluta
+        });
       }
     }
   }, [activeTab]);
 
   const handleTabClick = (tab) => {
-    onTabChange(tab);
+    if (onTabChange) onTabChange(tab);
   };
 
   return (

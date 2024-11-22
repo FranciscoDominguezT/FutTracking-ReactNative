@@ -45,7 +45,7 @@ const Header = () => {
       </TouchableOpacity>
       <UserSearch />
       <View style={styles.icons}>
-        <TouchableOpacity onPress={() => navigation.navigate('Filter')}>
+        <TouchableOpacity onPress={() => navigation.navigate('FilterScreen')}>
           <Image source={filter} style={styles.icon} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('ConfigScreen')}>

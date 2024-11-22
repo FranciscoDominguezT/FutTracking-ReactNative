@@ -3,6 +3,7 @@ import { View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from
 import Icon from 'react-native-vector-icons/FontAwesome'; // Importa el icono de FontAwesome
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importa AsyncStorage
 
 const UserSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,7 +14,7 @@ const UserSearch = () => {
     setLoading(true);
     try {
       const response = await axios.get('https://open-moderately-silkworm.ngrok-free.app/api/search/search');
-      localStorage.setItem('searchResults', JSON.stringify(response.data));
+      await AsyncStorage.setItem('searchResults', JSON.stringify(response.data)); // Usa AsyncStorage
       navigation.navigate('Search');
     } catch (error) {
       console.error('Error loading users:', error);
@@ -25,10 +26,10 @@ const UserSearch = () => {
     setLoading(true);
     try {
       const response = await axios.get('https://open-moderately-silkworm.ngrok-free.app/api/search/search', {
-        params: { term: searchTerm }
+        params: { term: searchTerm },
       });
       console.log('Search results:', response.data);
-      localStorage.setItem('searchResults', JSON.stringify(response.data));
+      await AsyncStorage.setItem('searchResults', JSON.stringify(response.data)); // Usa AsyncStorage
       navigation.navigate('Search', { state: { searchTerm } });
     } catch (error) {
       console.error('Error searching users:', error);
@@ -89,7 +90,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 20,
-    outline: 'none',
     paddingRight: 30,
     marginTop: 10,
   },
