@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, StyleSheet, Dimensions, Alert, StatusBar } from 'react-native';
 import axios from 'axios';
 import VideoPlayer from './Components/VideoPlayer';
@@ -29,6 +29,8 @@ const Main = () => {
 
   const { user, token } = useContext(AuthContext);
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  const videoRef = useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -162,8 +164,8 @@ const Main = () => {
         videoData={videoData}
         isPlaying={isPlaying}
         onPlayPause={handlePlayPause}
-        onTimeUpdate={(time) => setCurrentTime(time)}
-        onDurationChange={(dur) => setDuration(dur)}
+        onTimeUpdate={setCurrentTime}
+        onDurationChange={setDuration}
       />
       <View style={styles.playerInfo}>
         <Controls
@@ -171,6 +173,7 @@ const Main = () => {
           currentTime={currentTime}
           duration={duration}
           onPlayPause={handlePlayPause}
+          videoRef={videoRef}
         />
         <UserInfo
           userData={userData}

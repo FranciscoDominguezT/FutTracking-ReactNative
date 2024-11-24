@@ -9,7 +9,7 @@ import Posteos from './Components/Posteos';
 import MisDatos from './Components/MisDatos';
 import MisDatosAficionado from './Components/MisDatosAficionado';
 import MisDatosReclutador from './Components/MisDatosReclutador';
-import Footer from '../Home/Components/Footer';
+import Footer from '../Profile/Components/Footer';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const Profile = () => {

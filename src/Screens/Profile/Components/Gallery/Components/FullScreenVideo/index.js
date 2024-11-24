@@ -1,140 +1,134 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Dimensions, StatusBar } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
-import { FontAwesome } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import VideoControls from '../VideoControls';
 
-const FullScreenVideo = ({
-  video,
-  isPlaying,
-  setIsPlaying,
-  currentTime,
-  setCurrentTime,
-  duration,
-  setDuration,
-  onClose,
-  children
+const FullScreenVideo = ({ 
+  video, 
+  isPlaying, 
+  setIsPlaying, 
+  currentTime, 
+  setCurrentTime, 
+  duration, 
+  setDuration, 
+  onClose, 
+  children 
 }) => {
-  const videoRef = useRef(null);
-  const [status, setStatus] = useState({});
-
-  useEffect(() => {
-    StatusBar.setHidden(true);
-    return () => {
-      StatusBar.setHidden(false);
-    };
-  }, []);
+  const videoRef = useRef();
 
   useEffect(() => {
     if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.playAsync();
-      } else {
-        videoRef.current.pauseAsync();
-      }
+      const playVideo = async () => {
+        try {
+          if (isPlaying) {
+            await videoRef.current.playAsync();
+          }
+        } catch (e) {
+          console.error("Error al reproducir:", e);
+          setIsPlaying(false);
+        }
+      };
+      playVideo();
     }
-  }, [isPlaying]);
+  }, [video, setIsPlaying]);
 
   const handlePlayPause = async () => {
-    if (!videoRef.current) return;
-    
-    if (status.isPlaying) {
-      await videoRef.current.pauseAsync();
-    } else {
-      await videoRef.current.playAsync();
+    if (videoRef.current) {
+      if (isPlaying) {
+        await videoRef.current.pauseAsync();
+      } else {
+        await videoRef.current.playAsync();
+      }
+      setIsPlaying(!isPlaying);
     }
-    setIsPlaying(!status.isPlaying);
   };
 
-  const handleVideoStatusUpdate = (status) => {
-    setStatus(status);
-    if (status.isLoaded) {
+  const handleTimeUpdate = (status) => {
+    if (status.isPlaying) {
       setCurrentTime(status.positionMillis / 1000);
       setDuration(status.durationMillis / 1000);
     }
   };
 
-  const handleLoad = async () => {
-    if (videoRef.current) {
-      const status = await videoRef.current.getStatusAsync();
-      if (status.isLoaded) {
-        setDuration(status.durationMillis / 1000);
-      }
-    }
+  const handleScreenClick = () => {
+    handlePlayPause();
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.fullscreenVideo}>
       <Video
+        source={{ uri: video.url }}
+        style={styles.fullscreenVideoPlayer}
         ref={videoRef}
-        style={styles.videoPlayer}
-        source={{ uri: video?.url }}
-        resizeMode="contain"
-        isLooping={false}
-        onPlaybackStatusUpdate={handleVideoStatusUpdate}
-        onLoad={handleLoad}
+        shouldPlay={isPlaying}
+        isLooping={true}
+        resizeMode="stretch" // Cambiado a "stretch" para permitir la deformación
+        onPlaybackStatusUpdate={handleTimeUpdate}
         useNativeControls={false}
       />
-
-      <TouchableOpacity 
-        style={styles.videoWrapper} 
-        activeOpacity={1} 
-        onPress={handlePlayPause}
-      />
-
+      
       <TouchableOpacity 
         style={styles.closeButton} 
         onPress={onClose}
       >
-        <FontAwesome name="arrow-left" size={24} color="#FFFFFF" />
+        <AntDesign name="arrowleft" size={35} color="white" />
       </TouchableOpacity>
 
-      <View style={styles.controlsContainer}>
-        <VideoControls
-          isPlaying={status.isPlaying}
-          currentTime={currentTime}
-          duration={duration}
-          onPlayPause={handlePlayPause}
-          videoRef={videoRef}
-        />
-        {children}
-      </View>
+      <TouchableOpacity 
+        style={styles.videoTouchable}
+        onPress={handleScreenClick}
+      >
+        <View style={styles.infoPlayer}>
+          <VideoControls
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            onPlayPause={handlePlayPause}
+            videoRef={videoRef}
+          />
+          {children}
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
 
-const { width, height } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000000',
+  fullscreenVideo: {
+    position: 'absolute',
+    top: -340, // Valor fijo en lugar de porcentaje
+    left: 20, // Valor fijo en lugar de porcentaje
+    width: 350, // Ancho fijo
+    height: 750, // Alto fijo
+    backgroundColor: 'black',
+    zIndex: 9999,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  videoWrapper: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1,
-  },
-  videoPlayer: {
-    width: width,
-    height: height,
-    backgroundColor: '#000000',
+  fullscreenVideoPlayer: {
+    width: 350, // Mismo ancho fijo
+    height: 750, // Mismo alto fijo
   },
   closeButton: {
     position: 'absolute',
-    top: 40,
+    top: 20, // Ajustado para el nuevo tamaño
     left: 20,
-    padding: 10,
     zIndex: 2,
   },
-  controlsContainer: {
+  videoTouchable: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 2,
+    bottom: 0,
+    zIndex: 1,
+  },
+  infoPlayer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
   }
 });
 

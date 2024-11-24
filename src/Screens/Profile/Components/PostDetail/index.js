@@ -36,7 +36,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
     }
   };
 
-   const handleLocalLike = async () => {
+  const handleLocalLike = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.put(
@@ -48,13 +48,15 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
           },
         }
       );
-
-      setLocalPost(prevPost => ({
+  
+      // Actualiza el estado del post basándote en la respuesta del servidor.
+      setLocalPost((prevPost) => ({
         ...prevPost,
-        likes: response.data.likes,
+        likes: response.data.likes, // Actualiza con los likes del servidor.
       }));
-
-      onLike(localPost.post_id);
+  
+      // Si es necesario, actualiza también el estado global.
+      if (onLike) onLike(localPost.post_id);
     } catch (error) {
       console.error('Error al likear el post:', error);
     }
@@ -198,7 +200,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
               style={styles.actionButton}
             >
               <Icon name="chatbubble" size={20} color="#657786" />
-              <Text>{comments.length}</Text>
+              <Text>{comments.filter(c => c.parent_id === localPost.post_id).length}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -227,25 +229,24 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    top: 0,
+    position: 'fixed',
+    top: -300,
     left: 0,
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000,
+    zIndex: 9999,
   },
   content: {
     backgroundColor: 'white',
+    width: 400, // Ancho fijo
+    height: 850, // Alto fijo
     padding: 20,
-    width: '90%',
-    maxWidth: 450,
-    maxHeight: '90%',
-    overflowY: 'auto',
     borderRadius: 10,
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+    overflow: 'hidden', // Asegura que el contenido no desborde
   },
   header: {
     flexDirection: 'row',
@@ -253,6 +254,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButton: {
+    marginTop: 50,
     marginRight: 10,
   },
   title: {
@@ -260,6 +262,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginLeft: 10,
+    marginTop: 50,
   },
   originalPost: {
     padding: 15,
@@ -300,6 +303,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     color: '#657786',
     fontSize: 14,
+    marginRight: 10,
+    marginBottom: 25,
   },
   likedButton: {
     color: '#e0245e',
@@ -324,6 +329,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   commentHeaderText: {
+    marginBottom: 20,
     fontWeight: 'bold',
     fontSize: 16,
   },

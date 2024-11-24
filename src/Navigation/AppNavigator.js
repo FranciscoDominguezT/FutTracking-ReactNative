@@ -10,6 +10,7 @@ import Profile from '../Screens/Profile';
 import FilterScreen from '../Screens/Home/Components/FilterScreen';
 import SearchResults from '../Screens/Home/Components/SearchResultsPage';
 import SearchResultsPage from '../Screens/Home/Components/SearchResultsPage';
+import Messages from '../Screens/Messages';
 // import ConfigScreen from '../Screens/ConfigScreen';
 // import ChangeRol from '../Screens/ChangeRol';
 // import Jugador from '../Screens/ChangeRol/components/Jugador';
@@ -28,6 +29,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
       <Stack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Search" component={SearchResultsPage} options={{ headerShown: false }}/>
+      <Stack.Screen name="Messages" component={Messages} options={{ headerShown: false }}/>
       {/* 
       <Stack.Screen name="Register" component={Register} />
 

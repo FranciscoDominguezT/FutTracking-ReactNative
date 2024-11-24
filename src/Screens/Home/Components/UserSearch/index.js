@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Importa el icono de FontAwesome
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importa AsyncStorage
 
 const UserSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,7 +14,7 @@ const UserSearch = () => {
     setLoading(true);
     try {
       const response = await axios.get('https://open-moderately-silkworm.ngrok-free.app/api/search/search');
-      await AsyncStorage.setItem('searchResults', JSON.stringify(response.data)); // Usa AsyncStorage
+      await AsyncStorage.setItem('searchResults', JSON.stringify(response.data));
       navigation.navigate('Search');
     } catch (error) {
       console.error('Error loading users:', error);
@@ -26,21 +26,15 @@ const UserSearch = () => {
     setLoading(true);
     try {
       const response = await axios.get('https://open-moderately-silkworm.ngrok-free.app/api/search/search', {
-        params: { term: searchTerm },
+        params: { term: searchTerm }
       });
       console.log('Search results:', response.data);
-      await AsyncStorage.setItem('searchResults', JSON.stringify(response.data)); // Usa AsyncStorage
-      navigation.navigate('Search', { state: { searchTerm } });
+      await AsyncStorage.setItem('searchResults', JSON.stringify(response.data));
+      navigation.navigate('Search', { searchTerm });
     } catch (error) {
       console.error('Error searching users:', error);
     }
     setLoading(false);
-  };
-
-  const handleSearch = () => {
-    if (searchTerm.trim() !== '') {
-      searchUsers();
-    }
   };
 
   const handleFocus = () => {
@@ -59,24 +53,27 @@ const UserSearch = () => {
   return (
     <View style={styles.searchContainer}>
       <TextInput
+        style={styles.searchBar}
         value={searchTerm}
         onChangeText={handleInputChange}
         onFocus={handleFocus}
         placeholder="Buscar..."
-        style={styles.searchBar}
+        placeholderTextColor="#999"
       />
-      <TouchableOpacity onPress={handleSearch} disabled={loading} style={styles.searchButton}>
+      <TouchableOpacity 
+        style={styles.searchButton} 
+        onPress={() => searchTerm.trim() !== '' && searchUsers()}
+        disabled={loading}
+      >
         {loading ? (
-          <ActivityIndicator size="small" color="#000" />
+          <ActivityIndicator size="small" color="#157446" />
         ) : (
-          <Icon name="search" size={20} style={styles.searchIcon} />
+          <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
         )}
       </TouchableOpacity>
     </View>
   );
 };
-
-export default UserSearch;
 
 const styles = StyleSheet.create({
   searchContainer: {
@@ -86,21 +83,27 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     width: '100%',
-    padding: 10,
+    height: 40,
+    paddingHorizontal: 15,
+    paddingRight: 40,
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 20,
-    paddingRight: 30,
-    marginTop: 10,
+    fontSize: 16,
+    marginTop: 9,
   },
   searchButton: {
     position: 'absolute',
     right: 10,
-    top: '40%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    padding: 8,
   },
   searchIcon: {
-    color: '#ccc',
-  },
+    width: 20,
+    height: 20,
+  }
 });
+
+export default UserSearch;

@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   profilePic: {
-    width: 100,
-    height: 100,
+    width: 90,
+    height: 90,
     borderRadius: 50,
     borderWidth: 3,
     borderColor: '#fff',
@@ -103,15 +103,16 @@ const styles = StyleSheet.create({
   },
   profileDetails: {
     alignItems: 'flex-start',
+    marginTop: -20,
   },
   profileName: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: '700',
     marginBottom: 4,
     color: '#000',
   },
   profileRole: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#000',
     marginBottom: 4,
     fontWeight: '400',

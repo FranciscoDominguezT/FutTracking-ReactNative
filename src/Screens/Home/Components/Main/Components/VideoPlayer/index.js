@@ -6,11 +6,13 @@ const VideoPlayer = ({ videoData, isPlaying, onPlayPause, onTimeUpdate, onDurati
   const videoRef = useRef(null);
 
   useEffect(() => {
-    if (videoData && videoRef.current) {
+    if (videoRef.current) {
       const playVideo = async () => {
         try {
           if (isPlaying) {
-            await videoRef.current.seek(0);
+            await videoRef.current.playAsync();
+          } else {
+            await videoRef.current.pauseAsync();
           }
         } catch (e) {
           console.error("Error al reproducir:", e);
@@ -18,21 +20,12 @@ const VideoPlayer = ({ videoData, isPlaying, onPlayPause, onTimeUpdate, onDurati
       };
       playVideo();
     }
-  }, [videoData, isPlaying]);
+  }, [isPlaying]);
 
-  const handleError = (error) => {
-    console.error("Error en la reproducción del video:", error);
-  };
-
-  const handleTimeUpdate = (data) => {
-    if (data && typeof data.currentTime === 'number') {
-      onTimeUpdate(data.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = (data) => {
-    if (data && typeof data.duration === 'number') {
-      onDurationChange(data.duration);
+  const handlePlaybackStatusUpdate = (status) => {
+    if (status.isLoaded) {
+      onTimeUpdate(status.positionMillis / 1000);
+      onDurationChange(status.durationMillis / 1000);
     }
   };
 
@@ -51,16 +44,11 @@ const VideoPlayer = ({ videoData, isPlaying, onPlayPause, onTimeUpdate, onDurati
           ref={videoRef}
           source={{ uri: videoData?.url }}
           style={styles.playerImg}
-          onProgress={handleTimeUpdate}
-          onLoad={handleLoadedMetadata}
-          onError={handleError}
-          paused={!isPlaying}
-          useNativeControls
+          shouldPlay={isPlaying}
+          isLooping={true}
           resizeMode="cover"
-          repeat
-          playInBackground={false}
-          playWhenInactive={false}
-          ignoreSilentSwitch="ignore"
+          onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+          useNativeControls={false}
         />
       </View>
     </TouchableWithoutFeedback>

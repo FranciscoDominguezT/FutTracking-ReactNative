@@ -33,7 +33,7 @@ const VideoControls = ({ isPlaying, currentTime, duration, onPlayPause, videoRef
       >
         <FontAwesome 
           name={isPlaying ? "pause" : "play"} 
-          size={24} 
+          size={16} 
           color="white" 
         />
       </TouchableOpacity>
@@ -77,6 +77,11 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#464747',
+    border: 'none',
+    borderRadius: '50%',
+    width: 40,
+    height: 40,
   },
   barTime: {
     flex: 1,
@@ -88,7 +93,7 @@ const styles = StyleSheet.create({
     width: 45,
     textAlign: 'center',
     color: 'white',
-    fontSize: 12,
+    fontSize: 16,
   },
   barProgress: {
     flex: 1,
@@ -98,14 +103,14 @@ const styles = StyleSheet.create({
   },
   progressBackground: {
     width: '100%',
-    height: 4,
+    height: 6,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 2,
     overflow: 'hidden',
   },
   progress: {
     height: '100%',
-    backgroundColor: '#007BFF',
+    backgroundColor: '#fff',
   },
 });
 

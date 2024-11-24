@@ -71,6 +71,9 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
       }
       const data = await videoData.json();
       setLikes(data.likes || 0);
+
+      const commentCountResponse = await axios.get(`${API_BASE_URL}/comments/${video.id}/countComments`);
+      setCommentsCount(commentCountResponse.data.count);
       
       const ownerResponse = await axios.get(`${API_BASE_URL}/user/${video.usuarioid}`);
       setVideoOwner(ownerResponse.data);
@@ -171,6 +174,7 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
           {showCommentMenu && (
             <CommentSection
               videoId={selectedVideo.id}
+              selectedVideo={selectedVideo} // Agregar esta prop
               comments={comments}
               setComments={setComments}
               onClose={() => setShowCommentMenu(false)}

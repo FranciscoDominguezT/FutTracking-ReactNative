@@ -16,7 +16,7 @@ const Footer = () => {
                 <Image source={home} style={styles.footerIconIcon} />
                 <Text style={styles.text}>Inicio</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.footerIcon}>
+            <TouchableOpacity style={styles.footerIcon} onPress={() => navigation.navigate('Messages')}>
                 <Image source={comments} style={styles.footerIconIcon} />
                 <Text style={styles.text}>Mensajes</Text>
             </TouchableOpacity>
@@ -45,13 +45,14 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#ddd',
         position: 'absolute',
-        bottom: 0,
+        bottom: 15,
         left: 0,
     },
     footerIcon: {
         flexDirection: 'column',
         alignItems: 'center',
         marginTop: 10,
+        marginBottom: 10,
     },
     text: {
         color: '#000000',

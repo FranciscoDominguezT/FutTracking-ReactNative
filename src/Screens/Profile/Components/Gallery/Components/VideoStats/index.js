@@ -6,19 +6,19 @@ const VideoStats = ({ likes, commentsCount, onLikeClick, onCommentClick, onShare
   return (
     <View style={styles.stats}>
       <TouchableOpacity style={styles.stat} onPress={onLikeClick}>
-        <FontAwesome name="heart" size={24} color={likes > 0 ? "red" : "black"} /> 
+        <FontAwesome name="heart" size={20} color={likes > 0 ? "red" : "white"} /> 
         <Text style={styles.statText}>{likes}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.stat} onPress={onCommentClick}>
-        <FontAwesome name="comment" size={24} color="black" /> 
+        <FontAwesome name="comment" size={20} color="white" /> 
         <Text style={styles.statText}>{commentsCount}</Text>
       </TouchableOpacity>
       <View style={styles.stat}>
-        <FontAwesome name="eye" size={24} color="black" /> 
+        <FontAwesome name="eye" size={20} color="white" /> 
         <Text style={styles.statText}>61.3K</Text>
       </View>
       <TouchableOpacity style={styles.stat} onPress={onShareClick}>
-        <FontAwesome name="share-alt" size={24} color="black" /> 
+        <FontAwesome name="share-alt" size={20} color="white" /> 
         <Text style={styles.statText}>Compartir</Text>
       </TouchableOpacity>
     </View>
@@ -28,16 +28,19 @@ const VideoStats = ({ likes, commentsCount, onLikeClick, onCommentClick, onShare
 const styles = StyleSheet.create({
   stats: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 10,
+    justifyContent: 'space-around',
+    width: '100%',
+    padding: 15,
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   stat: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   statText: {
+    color: '#fff',
     marginLeft: 5,
-    fontSize: 16,
   },
 });
 

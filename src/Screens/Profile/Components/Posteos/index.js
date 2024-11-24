@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, Alert, Text, Image } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios';
 import PostDetail from '../PostDetail';
 import NewCommentModal from '../NewCommentModal';
@@ -206,8 +206,13 @@ const Posteos = () => {
                 <Text style={styles.userName}>{item.nombre || 'Unknown'} {item.apellido || 'User'}</Text>
                 <Text style={styles.postDate}>{new Date(item.fechapublicacion).toLocaleString()}</Text>
               </View>
-              <TouchableOpacity onPress={(event) => openConfirmModal(item.post_id)}>
-                <FontAwesome name="trash" size={24} color="#333" />
+              <TouchableOpacity
+                onPress={(event) => {
+                  event.stopPropagation(); // Previene que el evento toque afecte al padre
+                  handleDeleteTweet(item.post_id);
+                }}
+              >
+                <FontAwesome5 name="trash" size={18} color="#657786" />
               </TouchableOpacity>
             </View>
             <Text style={styles.postContent}>{item.contenido}</Text>
@@ -216,14 +221,14 @@ const Posteos = () => {
                 style={[styles.likeButton, likedPosts[item.post_id] && styles.likedButton]}
                 onPress={() => handleLike(item.post_id)}
               >
-                <FontAwesome name="heart" size={18} color={likedPosts[item.post_id] ? 'red' : '#333'} />
+                <FontAwesome name="heart" size={18} color={likedPosts[item.post_id] ? 'red' : '#657786'} />
                 <Text style={styles.likeCount}>{item.likes || 0}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.commentButton}
                 onPress={() => handleCommentClick(item.post_id)}
               >
-                <FontAwesome name="comment" size={18} color="#333" />
+                <FontAwesome name="comment" size={18} color="#657786" />
                 <Text style={styles.commentCount}>{parseInt(item.count, 10) || 0}</Text>
               </TouchableOpacity>
             </View>
@@ -279,7 +284,7 @@ const Posteos = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#black',
     paddingHorizontal: 16,
   },
   newTweetButton: {
@@ -290,8 +295,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    top: 325, // Ajusta este valor para cambiar la posición vertical
+    left: 315,
+    zIndex: 9999,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -314,7 +320,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.10,
     shadowRadius: 1.00,
     elevation: 1,
   },
@@ -361,7 +367,7 @@ const styles = StyleSheet.create({
   },
   likeCount: {
     fontSize: 14,
-    color: '#333',
+    color: '#657786',
     marginLeft: 4,
   },
   commentButton: {
@@ -370,7 +376,7 @@ const styles = StyleSheet.create({
   },
   commentCount: {
     fontSize: 14,
-    color: '#333',
+    color: '#657786',
     marginLeft: 4,
   },
   noPostsMessage: {

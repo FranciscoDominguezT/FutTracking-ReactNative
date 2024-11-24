@@ -253,19 +253,26 @@ const CommentMenu = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
       <View style={styles.commentInputWrapper}>
         <TextInput
           style={styles.commentInput}
-          placeholder="Escribe un comentario..."
+          placeholder="Escribí tu respuesta"
           placeholderTextColor="#aaa"
           value={newComment}
           onChangeText={setNewComment}
         />
-        <Button 
-          title={isSubmitting ? "Enviando..." : "Enviar"} 
+        <TouchableOpacity 
+          style={[
+            styles.commentSendButton,
+            isSubmitting && styles.commentSendButtonDisabled 
+          ]}
           onPress={handleSubmitComment} 
           disabled={isSubmitting}
-        />
+        >
+          <Text style={styles.commentSendButtonText}>
+            {isSubmitting ? "Enviando..." : "Enviar"}
+          </Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={onClose}>
-        <Text style={styles.hideRepliesButton}>Cerrar</Text>
+      <TouchableOpacity onPress={onClose} style={styles.hideRepliesButtonWrapper}>
+        <Text style={styles.hideRepliesButton}>Cancelar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -274,7 +281,7 @@ const CommentMenu = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
 const styles = StyleSheet.create({
   commentMenu: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 55,
     left: '10%',
     transform: [{ translateX: -50 }],
     width: '103%',
@@ -399,7 +406,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   commentInput: {
-    flexGrow: 1,
+    width: '75%',
     padding: 10,
     borderRadius: 20,
     borderWidth: 1,
@@ -412,23 +419,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#464747',
     color: '#fff',
     borderWidth: 0,
+    width: '25%',
     borderRadius: 20,
-    padding: 10,
+    padding: 12,
     // cursor: 'pointer',
     fontWeight: 'bold',
+  },
+  commentSendButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   commentSendButtonHover: {
     backgroundColor: '#fff',
     color: '#000',
   },
+  hideRepliesButtonWrapper: {
+    backgroundColor: '#a0a0a0',
+    borderRadius: 10,
+    padding: 10,
+    width: '27%',
+    alignItems: 'center',
+    marginTop: 10,
+  },
   hideRepliesButton: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#fff',
+    fontWeight: 'bold',
     borderWidth: 0,
-    padding: 5,
-    marginTop: 5,
-    // cursor: 'pointer',
-    backgroundColor: '#0c0c0c',
   },
 });
 

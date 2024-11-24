@@ -26,7 +26,7 @@ const GalleryGrid = ({ videos, onVideoClick }) => {
         data={videos}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()} // Asegúrate de que cada video tenga un id único
-        numColumns={2} // Cambia este número para modificar la cantidad de columnas
+        numColumns={3} // Cambia este número para modificar la cantidad de columnas
       />
     </View>
   );
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   galleryItem: {
     width: '33.33%',
-    aspectRatio: 9 / 16,
+    aspectRatio: 3 / 4,
     overflow: 'hidden',
   },
   galleryImg: {

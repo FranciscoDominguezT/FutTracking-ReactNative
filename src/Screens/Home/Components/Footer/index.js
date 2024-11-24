@@ -16,7 +16,7 @@ const Footer = () => {
                 <Image source={home} style={styles.footerIconIcon} />
                 <Text style={styles.text}>Inicio</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.footerIcon}>
+            <TouchableOpacity style={styles.footerIcon} onPress={() => navigation.navigate('Messages')}>
                 <Image source={comments} style={styles.footerIconIcon} />
                 <Text style={styles.text}>Mensajes</Text>
             </TouchableOpacity>

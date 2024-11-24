@@ -13,17 +13,8 @@ const VideoInfo = ({ videoOwner, isFollowing, onFollowToggle }) => {
         style={styles.imgUserProfile}
       />
       <View style={styles.detailsUser}>
-        <Text style={styles.username}>
-          {videoOwner.nombre} {videoOwner.apellido}
-        </Text>
-        <Text style={styles.userLocation}>
-          {videoOwner.provincia_nombre}, {videoOwner.nacion_nombre}
-        </Text>
-        <TouchableOpacity style={styles.followButton} onPress={onFollowToggle}>
-          <Text style={styles.followButtonText}>
-            {isFollowing ? 'Dejar de seguir' : 'Seguir'}
-          </Text>
-        </TouchableOpacity>
+        <Text style={styles.username}>{`${videoOwner.nombre}${videoOwner.apellido}`}</Text>
+        <Text style={styles.userLocation}>{`${videoOwner.provincia_nombre || ''}, ${videoOwner.nacion_nombre || ''}`}</Text>
       </View>
     </View>
   );
@@ -33,31 +24,47 @@ const styles = StyleSheet.create({
   infoUser: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    width: '100%',
+    marginBottom: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10
   },
   imgUserProfile: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     marginRight: 10,
+    borderWidth: 2,
+    borderColor: '#fff',
+
   },
   detailsUser: {
-    flex: 1,
+    flexGrow: 1,
+    
   },
   username: {
-    fontSize: 16,
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
+    
   },
   userLocation: {
-    fontSize: 14,
-    color: '#555',
+    color: '#ddd',
+    fontSize: 16,
   },
   followButton: {
-    marginTop: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    backgroundColor: '#007BFF',
+    backgroundColor: 'transparent',
+    color: '#fff',
+    borderWidth: 2,
+    borderColor: '#fff',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginRight: 10,
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    transition: 'background-color 0.3s ease, color 0.3s ease',
+    
   },
   followButtonText: {
     color: '#fff',

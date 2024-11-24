@@ -1,38 +1,82 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Controls = ({ isPlaying, currentTime, duration, onPlayPause }) => {
+const Controls = ({ isPlaying, currentTime, duration, onPlayPause, videoRef }) => {
   const progressBarRef = useRef();
+  const isDragging = useRef(false);
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  const handleProgressClick = (e) => {
-    const newTime = (e.nativeEvent.locationX / progressBarRef.current.width) * duration;
-    onPlayPause(newTime);
+  const handleProgressPress = async (e) => {
+    if (videoRef.current && progressBarRef.current) {
+      const { width } = await progressBarRef.current.measure();
+      const position = e.nativeEvent.locationX;
+      const percentage = position / width;
+      const newTime = percentage * duration * 1000; // Convertir a milisegundos
+      
+      try {
+        await videoRef.current.setPositionAsync(newTime);
+      } catch (error) {
+        console.error('Error al establecer la posición del video:', error);
+      }
+    }
+  };
+
+  const handleTouchStart = () => {
+    isDragging.current = true;
+  };
+
+  const handleTouchMove = async (e) => {
+    if (isDragging.current) {
+      await handleProgressPress(e);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isDragging.current = false;
   };
 
   return (
     <View style={styles.controlsWrapper}>
-      <TouchableOpacity style={styles.pauseButton} onPress={() => onPlayPause()}>
-        <Icon name={isPlaying ? 'pause' : 'play'} size={20} color="#fff" />
+      <TouchableOpacity 
+        style={styles.pauseButton} 
+        onPress={onPlayPause}
+      >
+        <Icon 
+          name={isPlaying ? 'pause' : 'play'} 
+          size={20} 
+          color="#fff" 
+        />
       </TouchableOpacity>
       
-      <TouchableWithoutFeedback onPress={handleProgressClick}>
-        <View style={styles.timeBar} ref={progressBarRef}>
-          <Text style={styles.time}>{formatTime(currentTime)}</Text>
-          <View style={styles.progressBar}>
+      <View style={styles.timeBar}>
+        <Text style={styles.time}>{formatTime(currentTime)}</Text>
+        <TouchableWithoutFeedback
+          onPressIn={handleTouchStart}
+          onPressMove={handleTouchMove}
+          onPressOut={handleTouchEnd}
+        >
+          <View 
+            ref={progressBarRef}
+            style={styles.progressBar}
+          >
             <View
-              style={[styles.progress, { width: `${(currentTime / duration) * 100}%` }]}
+              style={[
+                styles.progress,
+                { width: `${(currentTime / (duration || 1)) * 100}%` }
+              ]}
             />
           </View>
-          <Text style={styles.time}>{formatTime(duration - currentTime)}</Text>
-        </View>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+        <Text style={styles.time}>
+          {formatTime(Math.max(0, duration - currentTime))}
+        </Text>
+      </View>
     </View>
   );
 };
@@ -87,6 +131,7 @@ const styles = StyleSheet.create({
   },
   time: {
     color: '#fff',
+    fontSize: 12,
   },
 });
 
