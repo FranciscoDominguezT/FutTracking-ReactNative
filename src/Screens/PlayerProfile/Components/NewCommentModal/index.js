@@ -1,17 +1,16 @@
 import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
 import { AuthContext } from '../../../../Context/auth-context';
-import './index.css';
 
 const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId = null }) => {
   const [content, setContent] = useState('');
-  const { user, token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!content.trim()) return;
-  
+
     try {
-      const response = await fetch(`http://localhost:5001/api/posts/${postId}/comments`, {
+      const response = await fetch(`https://open-moderately-silkworm.ngrok-free.app/api/posts/${postId}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -22,42 +21,100 @@ const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId =
           parentid: parentId
         })
       });
-  
+
       if (!response.ok) {
         throw new Error('Error creating comment');
       }
-  
+
       const newComment = await response.json();
-  
       onCommentCreated(newComment);
       setContent('');
       onClose();
     } catch (error) {
       console.error("Error creating comment:", error);
+      Alert.alert('Error', 'Hubo un error al crear el comentario.');
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>{parentId ? "Nueva Respuesta" : "Nuevo Comentario"}</h2>
-        <form onSubmit={handleSubmit}>
-          <textarea
+    <Modal visible={isOpen} animationType="fade" transparent={true} onRequestClose={onClose}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.title}>{parentId ? 'Nueva Respuesta' : 'Nuevo Comentario'}</Text>
+
+          <TextInput
+            style={styles.textArea}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={parentId ? "Escribe tu respuesta..." : "Escribe tu comentario..."}
+            onChangeText={setContent}
+            placeholder={parentId ? 'Escribe tu respuesta...' : 'Escribe tu comentario...'}
             maxLength={280}
+            multiline={true}
           />
-          <div className="modal-actions">
-            <button type="button" onClick={onClose}>Cancelar</button>
-            <button type="submit">{parentId ? "Responder" : "Comentar"}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+
+          <View style={styles.modalActions}>
+            <TouchableOpacity onPress={onClose} style={[styles.button, styles.cancelButton]}>
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleSubmit} style={[styles.button, styles.submitButton]}>
+              <Text style={styles.buttonText}>{parentId ? 'Responder' : 'Comentar'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 8,
+    width: '90%',
+    maxWidth: 450,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  textArea: {
+    height: 100,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 15,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  cancelButton: {
+    backgroundColor: 'white',
+    borderColor: '#1da1f2',
+    borderWidth: 1,
+    marginRight: 10,
+  },
+  submitButton: {
+    backgroundColor: '#1da1f2',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+});
 
 export default NewCommentModal;

@@ -2,6 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from 'axios';
 import { AuthContext } from '../../../../Context/auth-context';
 import FollowersList from "../FollowersList";
+import { StyleSheet, Dimensions, View, ActivityIndicator, Image, TouchableOpacity, Text } from "react-native";
+
+const { width } = Dimensions.get('window');
 
 const ProfileInfo = ({ usuario_id }) => {
   const [profile, setProfile] = useState(null);
@@ -86,39 +89,32 @@ const ProfileInfo = ({ usuario_id }) => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: profile.avatar_url || "/default-avatar.png" }}
-        style={styles.profilePic}
-        resizeMode="contain"
-      />
-      <View style={styles.profileDetails}>
-        <Text style={styles.profileTitle}>
-          {profile.nombre} {profile.apellido}
-        </Text>
-        <Text style={styles.profileRole}>Jugador</Text>
-        <Text style={styles.profileLocation}>
-          {profile.provincia_nombre || "No especificada"}
-          {" "}
-          {profile.nacion_nombre || "No especificado"}
-        </Text>
-        <Text style={styles.profileFollowers} onPress={handleFollowersClick}>
-          <Text style={styles.followersCount}>{followersCount} seguidores</Text>
-        </Text>
-      </View>
-      <TouchableOpacity 
-        style={styles.followButton} 
-        onPress={handleFollowToggle}
-      >
-        <Text style={styles.followButtonText}>
-          {isFollowing ? "Siguiendo" : "Seguir"}
-        </Text>
-      </TouchableOpacity>
-      {showFollowers && (
+      <View style={styles.profileInfo}>
+        <View style={styles.profileImageContainer}>
+          <Image
+            source={{ uri: profile.avatar_url || '/default-avatar.png' }}
+            style={styles.profilePic}
+          />
+        </View>
+        <View style={styles.profileDetails}>
+          <Text style={styles.profileName}>
+            {profile.nombre}{profile.apellido}
+          </Text>
+          <Text style={styles.profileRole}>{profile.rol || 'Jugador'}</Text>
+          <Text style={styles.profileLocation}>
+            {profile.provincia_nombre || 'No especificada'}, {profile.nacion_nombre || 'No especificado'}
+          </Text>
+          <Text style={styles.profileFollowers} onPress={handleFollowersClick}>
+            <Text style={styles.followersCount}>{followersCount} seguidores</Text>
+          </Text>
+        </View>
+        {showFollowers && (
         <FollowersList
           userId={usuario_id}
           onClose={() => setShowFollowers(false)}
         />
-      )}
+        )}
+      </View>
     </View>
   );
 };

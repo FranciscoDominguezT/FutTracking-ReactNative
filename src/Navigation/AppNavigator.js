@@ -6,7 +6,7 @@ import Home from '../Screens/Home';
 import ConfigScreen from '../Screens/Home/Components/ConfigScreen';
 // import Register from '../Screens/Register';
 import Profile from '../Screens/Profile';
-// import PlayerProfile from '../Screens/PlayerProfile';
+import PlayerProfile from '../Screens/PlayerProfile';
 import FilterScreen from '../Screens/Home/Components/FilterScreen';
 import SearchResults from '../Screens/Home/Components/SearchResultsPage';
 import SearchResultsPage from '../Screens/Home/Components/SearchResultsPage';
@@ -30,19 +30,21 @@ const AppNavigator = () => {
       <Stack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Search" component={SearchResultsPage} options={{ headerShown: false }}/>
       <Stack.Screen name="Messages" component={Messages} options={{ headerShown: false }}/>
+      <Stack.Screen 
+          name="PlayerProfile" 
+          component={PlayerProfile}
+          options={({ route }) => ({ 
+              title: `Perfil de Jugador: ${route.params?.usuario_id || "Perfil"}`,
+              headerShown: false // Ocultar el encabezado
+          })}
+      />
       {/* 
       <Stack.Screen name="Register" component={Register} />
 
       <Stack.Screen name="ChangeRol" component={ChangeRol} />
       
       <Stack.Screen name="Jugador" component={Jugador} />
-      <Stack.Screen 
-        name="PlayerProfile" 
-        component={PlayerProfile}
-        options={({ route }) => ({ 
-          title: `Perfil de Jugador: ${route.params?.usuario_id}` 
-        })}
-      />
+      
       <Stack.Screen name="Reclutador" component={Reclutador} />
 
       <Stack.Screen name="MailJugador" component={MailJugador} />

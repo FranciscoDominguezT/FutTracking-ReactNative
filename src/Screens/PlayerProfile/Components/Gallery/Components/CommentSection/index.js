@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native';
 import axios from 'axios';
-import { FaHeart, FaPlay, FaTrash } from "react-icons/fa";
 import { AuthContext } from '../../../../../../Context/auth-context';
+import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = 'https://open-moderately-silkworm.ngrok-free.app/api';
 
 const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
   const [newComment, setNewComment] = useState("");
@@ -15,6 +17,10 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
 
   useEffect(() => {
     console.log('Estado del usuario autenticado:', user);
+    if (!user) {
+      console.error('Usuario no autenticado');
+      return;
+    }
   }, [user]);
 
   useEffect(() => {
@@ -23,12 +29,15 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
   }, [user, comments]);
 
   useEffect(() => {
-    const storedLikes = JSON.parse(localStorage.getItem('likedComments')) || {};
-    setLikedComments(storedLikes);
+    const loadLikedComments = async () => {
+      const storedLikes = await AsyncStorage.getItem('likedComments');
+      setLikedComments(storedLikes ? JSON.parse(storedLikes) : {});
+    };
+    loadLikedComments();
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('likedComments', JSON.stringify(likedComments));
+    AsyncStorage.setItem('likedComments', JSON.stringify(likedComments));
   }, [likedComments]);
 
   const handleCommentLike = async (commentId) => {
@@ -39,11 +48,11 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
         }
       });
       const updatedLikes = response.data.likes;
-  
+
       onCommentSubmit(comments.map(c =>
         c.id === commentId ? { ...c, likes: updatedLikes } : c
       ));
-  
+
       setLikedComments(prevLikedComments => ({
         ...prevLikedComments,
         [commentId]: !prevLikedComments[commentId]
@@ -52,6 +61,7 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
       console.error("Error updating comment likes:", error);
     }
   };
+
   const handleDeleteComment = async (commentId) => {
     console.log(`Intentando borrar comentario:`, commentId);
     try {
@@ -66,10 +76,9 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
       console.error("Error al eliminar el comentario:", error.response?.data || error.message);
     }
   };
+
   const handleSubmitComment = async () => {
     console.log('handleSubmitComment iniciado');
-    console.log('Estado de usuario:', user);
-    console.log('Token actual:', token);
     
     if (isLoading) {
       console.log('Esperando a que se cargue la información del usuario...');
@@ -83,7 +92,6 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
 
     if (!user) {
       console.error('Usuario no autenticado');
-      // Aquí podrías redirigir al usuario a la página de login o mostrar un mensaje
       return;
     }
 
@@ -91,16 +99,8 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
 
     try {
       console.log('Intentando enviar comentario...');
-      console.log('Headers de la solicitud:', { 
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      });
-      console.log('Cuerpo de la solicitud:', {
-        contenido: newComment,
-        parent_id: replyTo || null
-      });
-  
-      const response = await axios.post(`${API_BASE_URL}/comments/${selectedVideo.usuarioid}/comments`, {
+
+      const response = await axios.post(`${API_BASE_URL}/comments/${selectedVideo.id}/comments`, {
         contenido: newComment,
         parent_id: replyTo || null
       }, {
@@ -109,9 +109,8 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
           'Content-Type': 'application/json'
         }
       });
-  
+
       console.log('Respuesta del servidor:', response.data);
-  
       onCommentSubmit([...comments, response.data]);
       setNewComment('');
       setReplyTo(null);
@@ -119,7 +118,6 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
       console.error('Error al publicar comentario:', error.response?.data || error.message);
       if (error.response && error.response.status === 401) {
         console.error('Usuario no autenticado');
-        // Puedes mostrar un mensaje al usuario o redirigir a la página de login
       }
     } finally {
       setIsSubmitting(false);
@@ -128,125 +126,324 @@ const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) =
 
   const renderComments = (parentId = null) => {
     const sortedComments = [...comments].sort((a, b) => new Date(b.fechacomentario) - new Date(a.fechacomentario));
-
+  
     return sortedComments
       .filter(comment => comment.parent_id === parentId)
       .map(comment => {
         const hasReplies = sortedComments.some(reply => reply.parent_id === comment.id);
         const replies = sortedComments.filter(reply => reply.parent_id === comment.id);
         const areRepliesVisible = visibleReplies[comment.id];
-
-        const userId = user?.id;
-
+  
         return (
-          <div key={comment.id} className="comment">
-            <div className="comment-user-info">
-              <img
-                src={comment.avatar_url || "default-avatar.png"}
-                alt="User Profile"
-                className="comment-user-profile-img"
+          <View key={comment.id} style={styles.comment}>
+            <View style={styles.commentUserInfo}>
+              <Image
+                source={{ uri: comment.avatar_url || "default-avatar.png" }}
+                style={styles.commentUserProfileImg}
               />
-              <div className="comment-user-details">
-                <p className="comment-user-name">
+              <View style={styles.commentUserDetails}>
+                <Text style={styles.commentUserName}>
                   {comment.nombre || "Unknown"} {comment.apellido || "User"}
-                </p>
-                <p className="comment-timestamp">{new Date(comment.fechacomentario).toLocaleString()}</p>
-              </div>
-            </div>
-            <p className="comment-text">{comment.contenido}</p>
-            <div className="comment-stats">
-              <button className="reply-button" onClick={() => setReplyTo(comment.id)}>
-                Responder
-              </button>
-              <div className="comment-like-icon" onClick={() => handleCommentLike(comment.id)}>
-                <FaHeart className={likedComments[comment.id] ? "liked" : ""} />
-                <span>{comment.likes}</span>
-              </div>
-              {user  && userId === comment.usuarioid && (
-                <div className="comment-delete-icon" onClick={() => handleDeleteComment(comment.id)}>
-                  <FaTrash />
-                </div>
+                </Text>
+                <Text style={styles.commentTimestamp}>
+                  {new Date(comment.fechacomentario).toLocaleString()}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.commentText}>{comment.contenido}</Text>
+            <View style={styles.commentStats}>
+              <TouchableOpacity onPress={() => setReplyTo(comment.id)}>
+                <Text style={styles.replyButton}>Responder</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.commentLikeIcon} 
+                onPress={() => handleCommentLike(comment.id)}
+              >
+                <FontAwesome 
+                  name="heart" 
+                  size={20} 
+                  color={likedComments[comment.id] ? "red" : "#fff"} 
+                  style={likedComments[comment.id] ? styles.liked : styles.likeIcon}
+                />
+                <Text style={{ color: '#fff' }}>{comment.likes}</Text>
+              </TouchableOpacity>
+              {user && user.id === comment.usuarioid && (
+                <TouchableOpacity onPress={() => handleDeleteComment(comment.id)}>
+                  <FontAwesome name="trash" size={20} color="#fff" />
+                </TouchableOpacity>
               )}
-            </div>
+            </View>
             {hasReplies && (
-              <div>
-                {!areRepliesVisible && (
-                  <button className="view-replies-button" onClick={() => setVisibleReplies({ ...visibleReplies, [comment.id]: true })}>
-                    Ver Respuesta/s
-                  </button>
-                )}
-                {areRepliesVisible && (
-                  <div>
+              <View style={styles.replies}>
+                {!areRepliesVisible ? (
+                  <TouchableOpacity 
+                    onPress={() => setVisibleReplies({ ...visibleReplies, [comment.id]: true })}
+                  >
+                    <Text style={styles.viewRepliesButton}>Ver Respuesta/s</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View>
                     {replies.map(reply => (
-                      <div key={reply.id} className="comment-reply">
-                        <img
-                          src={reply.avatar_url || "default-avatar.png"}
-                          alt="User Profile"
-                          className="comment-user-profile-img"
-                        />
-                        <p className="reply-user-name">
-                          <span>{reply.nombre || 'Unknown'} {reply.apellido || 'User'}</span>
-                          <FaPlay className="reply-icon" />
-                          <span>{comment.nombre || 'Unknown'} {comment.apellido || 'User'}</span>
-                        </p>
-                        <p className="comment-timestamp">{new Date(reply.fechacomentario).toLocaleString()}</p>
-                        <p className="comment-text">{reply.contenido}</p>
-                        <div className="comment-stats">
-                          <button className="reply-button" onClick={() => setReplyTo(reply.id)}>
-                            Responder
-                          </button>
-                          <div className="comment-like-icon" onClick={() => handleCommentLike(reply.id)}>
-                            <FaHeart className={likedComments[reply.id] ? "liked" : ""} />
-                            <span>{reply.likes}</span>
-                          </div>
-                          {reply.usuarioid === userId && (
-                            <div className="comment-delete-icon" onClick={() => handleDeleteComment(reply.id)}>
-                              <FaTrash />
-                            </div>
+                      <View key={reply.id} style={styles.commentReply}>
+                        <View style={styles.commentUserInfo}>
+                          <Image
+                            source={{ uri: reply.avatar_url || "default-avatar.png" }}
+                            style={styles.commentUserProfileImg}
+                          />
+                          <View style={styles.commentUserDetails}>
+                            <View style={styles.replyUserName}>
+                              <Text style={styles.commentUserName}>
+                                {reply.nombre || 'Unknown'} {reply.apellido || 'User'}
+                              </Text>
+                              <FontAwesome name="play" size={12} color="#fff" style={{ marginHorizontal: 5 }} />
+                              <Text style={styles.commentUserName}>
+                                {comment.nombre || 'Unknown'} {comment.apellido || 'User'}
+                              </Text>
+                            </View>
+                            <Text style={styles.commentTimestamp}>
+                              {new Date(reply.fechacomentario).toLocaleString()}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.commentText}>{reply.contenido}</Text>
+                        <View style={styles.commentStats}>
+                          <TouchableOpacity onPress={() => setReplyTo(reply.id)}>
+                            <Text style={styles.replyButton}>Responder</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity 
+                            style={styles.commentLikeIcon} 
+                            onPress={() => handleCommentLike(reply.id)}
+                          >
+                            <FontAwesome 
+                              name="heart" 
+                              size={20} 
+                              color={likedComments[reply.id] ? "red" : "#fff"} 
+                              style={likedComments[reply.id] ? styles.liked : styles.likeIcon}
+                            />
+                            <Text style={{ color: '#fff' }}>{reply.likes}</Text>
+                          </TouchableOpacity>
+                          {reply.usuarioid === user.id && (
+                            <TouchableOpacity onPress={() => handleDeleteComment(reply.id)}>
+                              <FontAwesome name="trash" size={20} color="#fff" />
+                            </TouchableOpacity>
                           )}
-                        </div>
-                      </div>
+                        </View>
+                      </View>
                     ))}
-                    <button className="hide-replies-button" onClick={() => setVisibleReplies({ ...visibleReplies, [comment.id]: false })}>
-                      Ocultar Respuestas
-                    </button>
-                  </div>
+                    <TouchableOpacity 
+                      onPress={() => setVisibleReplies({ ...visibleReplies, [comment.id]: false })}
+                    >
+                      <Text style={styles.hideRepliesButton}>Ocultar Respuestas</Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
-              </div>
+              </View>
             )}
-          </div>
+          </View>
         );
       });
   };
 
   return (
-    <div className="comment-menu" onClick={(e) => e.stopPropagation()}>
-      <p className="comment-title">Comentarios</p>
-      <div className="comment-section">
+    <View style={styles.commentMenu}>
+      <Text style={styles.commentTitle}>Comentarios</Text>
+      <ScrollView style={styles.commentSection}>
         {renderComments()}
-      </div>
-      <div className="comment-input-wrapper">
-      <input
-          type="text"
-          className="comment-input"
+      </ScrollView>
+      <View style={styles.commentInputWrapper}>
+        <TextInput
+          style={styles.commentInput}
+          placeholder="Escribí tu respuesta"
+          placeholderTextColor="#aaa"
           value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder={replyTo !== null ? "Responde al comentario..." : "Escribí tu respuesta"}
-          disabled={isLoading || isSubmitting}
+          onChangeText={setNewComment}
         />
-          <button 
-          className="comment-send-button" 
-          onClick={handleSubmitComment}
-          disabled={isLoading || isSubmitting || !newComment.trim()}
+        <TouchableOpacity 
+          style={[
+            styles.commentSendButton,
+            isSubmitting && styles.commentSendButtonDisabled 
+          ]}
+          onPress={handleSubmitComment} 
+          disabled={isSubmitting}
         >
-          {isSubmitting ? 'Enviando...' : 'Enviar'}
-        </button>
-      </div>
-      <button className="cancel-button" onClick={onClose}>
-        Cancelar
-      </button>
-    </div>
+          <Text style={styles.commentSendButtonText}>
+            {isSubmitting ? "Enviando..." : "Enviar"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity onPress={onClose} style={styles.hideRepliesButtonWrapper}>
+        <Text style={styles.hideRepliesButton}>Cancelar</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  commentMenu: {
+    position: 'absolute',
+    bottom: 0,
+    left: '14.5%',
+    transform: [{ translateX: -50 }],
+    width: '99.5%',
+    maxWidth: 450,
+    height: '200%',
+    backgroundColor: '#0c0c0c',
+    padding: 20,
+    borderRadius: 10,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    color: '#fff',
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  commentTitle: {
+    color: '#fff',
+    marginBottom: 10,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  commentSection: {
+    width: '100%',
+    marginBottom: 20,
+    flexGrow: 1,
+    overflow: 'scroll',
+  },
+  comment: {
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 10,
+  },
+  commentUserInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  commentUserProfileImg: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+    borderColor: '#fff',
+    borderWidth: 1,
+  },
+  commentUserDetails: {
+    flexGrow: 1,
+  },
+  commentUserName: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  commentText: {
+    color: '#ddd',
+    marginTop: 5,
+    fontSize: 14,
+    paddingLeft: 3,
+  },
+  commentTimestamp: {
+    color: '#aaa',
+    fontSize: 12,
+  },
+  commentStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 5,
+    paddingLeft: 5,
+  },
+  replyButton: {
+    backgroundColor: 'transparent',
+    color: '#fff',
+    borderWidth: 0,
+    fontSize: 12,
+  },
+  commentReply: {
+    marginTop: 10,
+    paddingLeft: 3,
+  },
+  replyUserName: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  commentLikeIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 12,
+  },
+  likeIcon: {
+    marginRight: 5,
+  },
+  liked: {
+    color: 'red',
+  },
+  replies: {
+    marginTop: 10,
+    paddingLeft: 20,
+  },
+  viewRepliesButton: {
+    backgroundColor: 'transparent',
+    color: 'grey',
+    borderWidth: 0,
+    fontSize: 12,
+  },
+  commentInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 10,
+  },
+  commentInput: {
+    width: '75%',
+    padding: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    color: '#fff',
+    marginRight: 10,
+  },
+  commentSendButton: {
+    backgroundColor: '#464747',
+    color: '#fff',
+    borderWidth: 0,
+    width: '25%',
+    borderRadius: 20,
+    padding: 12,
+    fontWeight: 'bold',
+  },
+  commentSendButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  commentSendButtonHover: {
+    backgroundColor: '#fff',
+    color: '#000',
+  },
+  hideRepliesButtonWrapper: {
+    backgroundColor: '#a0a0a0',
+    borderRadius: 10,
+    padding: 10,
+    width: '27%',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  hideRepliesButton: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: 'bold',
+    borderWidth: 0,
+  },
+});
 
 export default CommentSection;

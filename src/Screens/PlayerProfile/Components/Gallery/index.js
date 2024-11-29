@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from "../../../../Context/auth-context";
 import CommentSection from './Components/CommentSection';
 import FullScreenVideo from './Components/FullScreenVideo';
 import GalleryGrid from './Components/GalleryGrid';
 import ShareMenu from './Components/ShareMenu';
 import VideoControls from './Components/VideoControls';
-import VideoInfo from './Components/VideoInfo';
+import VideoInfo from './Components/VideoInfo'
 import VideoStats from './Components/VideoStats';
-import "./index.css";
+import { StyleSheet, View, FlatList, TouchableOpacity, Image, Text } from 'react-native';
+import { Dimensions } from 'react-native';
 
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = 'https://open-moderately-silkworm.ngrok-free.app/api';
 
 const Gallery = ({ usuarioId, isUserProfile = false }) => {
   const [videos, setVideos] = useState([]);
@@ -33,7 +35,7 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = await AsyncStorage.getItem('token');
         let url = isUserProfile
           ? `${API_BASE_URL}/userProfile/my-videos`
           : `${API_BASE_URL}/userProfile/videos/${usuarioId}`;
@@ -59,21 +61,6 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
     fetchVideos();
   }, [usuarioId, isUserProfile]);
 
-  useEffect(() => {
-    const fetchCommentsCount = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/comments/${selectedVideo.id}/countComments`);
-        setCommentsCount(response.data.count);
-      } catch (error) {
-        console.error("Error fetching comments count:", error);
-      }
-    };
-
-    if (selectedVideo) {
-      fetchCommentsCount();
-    }
-  }, [selectedVideo]);
-
   const handleVideoClick = async (video) => {
     setSelectedVideo(video);
     try {
@@ -84,10 +71,12 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
       }
       const data = await videoData.json();
       setLikes(data.likes || 0);
+
+      const commentCountResponse = await axios.get(`${API_BASE_URL}/comments/${video.id}/countComments`);
+      setCommentsCount(commentCountResponse.data.count);
       
       const ownerResponse = await axios.get(`${API_BASE_URL}/user/${video.usuarioid}`);
       setVideoOwner(ownerResponse.data);
-      console.log("Video owner:", ownerResponse.data);
     } catch (error) {
       console.error("Error fetching video data:", error);
     }
@@ -150,9 +139,9 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
   }, [selectedVideo]);
 
   return (
-    <div className="gallery">
+    <View style={styles.gallery}>
       <GalleryGrid videos={videos} onVideoClick={handleVideoClick} />
-      
+
       {selectedVideo && (
         <FullScreenVideo
           video={selectedVideo}
@@ -185,6 +174,7 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
           {showCommentMenu && (
             <CommentSection
               videoId={selectedVideo.id}
+              selectedVideo={selectedVideo} // Agregar esta prop
               comments={comments}
               setComments={setComments}
               onClose={() => setShowCommentMenu(false)}
@@ -193,8 +183,38 @@ const Gallery = ({ usuarioId, isUserProfile = false }) => {
           )}
         </FullScreenVideo>
       )}
-    </div>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  gallery: {
+    flex: 1,
+  },
+  videoGrid: {
+    flex: 1,
+    flexWrap: 'wrap',
+    gap: 10,
+    justifyContent: 'flex-start',
+  },
+  galleryItem: {
+    width: Dimensions.get('window').width / 3 - 20,
+    aspectRatio: 9 / 16,
+    overflow: 'hidden',
+  },
+  galleryImg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  noVideosMessage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+    color: 'white',
+    fontSize: 18,
+  },
+});
 
 export default Gallery;

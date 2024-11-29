@@ -1,27 +1,47 @@
 import React from 'react';
-import { FaHeart, FaComment, FaEye, FaShareAlt } from "react-icons/fa";
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons'; // Importa FontAwesome desde @expo/vector-icons
 
 const VideoStats = ({ likes, commentsCount, onLikeClick, onCommentClick, onShareClick }) => {
   return (
-    <div className="estats">
-      <div className="estat" onClick={onLikeClick} style={{ cursor: "pointer" }}>
-        <FaHeart className={`stat-icon ${likes > 0 ? "liked" : ""}`} />
-        <span>{likes}</span>
-      </div>
-      <div className="estat" onClick={onCommentClick} style={{ cursor: "pointer" }}>
-        <FaComment className="estat-icon" />
-        <span>{commentsCount}</span>
-      </div>
-      <div className="estat">
-        <FaEye className="estat-icon" />
-        <span>61.3K</span>
-      </div>
-      <div className="estat" onClick={onShareClick} style={{ cursor: "pointer" }}>
-        <FaShareAlt className="estat-icon" />
-        <span>Compartir</span>
-      </div>
-    </div>
+    <View style={styles.stats}>
+      <TouchableOpacity style={styles.stat} onPress={onLikeClick}>
+        <FontAwesome name="heart" size={20} color={likes > 0 ? "red" : "white"} /> 
+        <Text style={styles.statText}>{likes}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.stat} onPress={onCommentClick}>
+        <FontAwesome name="comment" size={20} color="white" /> 
+        <Text style={styles.statText}>{commentsCount}</Text>
+      </TouchableOpacity>
+      <View style={styles.stat}>
+        <FontAwesome name="eye" size={20} color="white" /> 
+        <Text style={styles.statText}>61.3K</Text>
+      </View>
+      <TouchableOpacity style={styles.stat} onPress={onShareClick}>
+        <FontAwesome name="share-alt" size={20} color="white" /> 
+        <Text style={styles.statText}>Compartir</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  stats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    padding: 15,
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  },
+  stat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statText: {
+    color: '#fff',
+    marginLeft: 5,
+  },
+});
 
 export default VideoStats;

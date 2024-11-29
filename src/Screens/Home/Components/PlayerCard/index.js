@@ -9,13 +9,13 @@ const PlayerCard = ({ player }) => {
     const navigation = useNavigation();
 
     const handleCardClick = () => {
-        if (player.usuario_id) {
+      if (player.usuario_id) {
           console.log(`Navigating to profile with usuario_id: ${player.usuario_id}`);
-          navigation.navigate(`/player/${player.usuario_id}`);
-        } else {
+          navigation.navigate('PlayerProfile', { usuario_id: player.usuario_id });
+      } else {
           console.error("usuario_id is undefined");
-        }
-    };
+      }
+  };
 
     return (
         <TouchableOpacity 

@@ -259,11 +259,11 @@ const FilterScreen = () => {
         {/* Players Grid */}
         <ScrollView style={styles.playersContainer}>
           <View style={styles.playersGrid}>
-            {filteredPlayers.map(player => (
-              <PlayerCard key={player.id} player={player} />
-            ))}
+              {filteredPlayers.map(player => (
+                  <PlayerCard key={player.id} player={player} />
+              ))}
           </View>
-        </ScrollView>
+      </ScrollView>
       </View>
       <Footer />
     </SafeAreaView>

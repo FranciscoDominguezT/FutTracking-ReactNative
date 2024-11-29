@@ -1,60 +1,117 @@
-import React, { useRef, useState } from 'react';
-import { FaPlay, FaPause } from "react-icons/fa";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
 const VideoControls = ({ isPlaying, currentTime, duration, onPlayPause, videoRef }) => {
-  const progressBarRef = useRef();
-  const [isDragging, setIsDragging] = useState(false);
-
   const formatTime = (time) => {
+    if (!time) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  const handleProgressClick = (e) => {
-    const newTime =
-      (e.nativeEvent.offsetX / progressBarRef.current.offsetWidth) * duration;
-    videoRef.current.currentTime = newTime;
-  };
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    handleProgressClick(e);
-  };
-
-  const handleMouseMove = (e) => {
-    if (isDragging) {
-      handleProgressClick(e);
+  const handleSeek = async (evt) => {
+    if (!videoRef?.current || !duration) return;
+    
+    const { locationX, layoutMeasurements } = evt.nativeEvent;
+    const progress = locationX / layoutMeasurements.width;
+    const seekTime = progress * duration * 1000; // Convertir a milisegundos para Expo AV
+    
+    try {
+      await videoRef.current.setPositionAsync(seekTime);
+    } catch (error) {
+      console.error('Error seeking:', error);
     }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
   return (
-    <div className="wrapper-controls">
-      <button className="button-pause" onClick={onPlayPause}>
-        {isPlaying ? <FaPause /> : <FaPlay />}
-      </button>
-      <div
-        className="bar-time"
-        ref={progressBarRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+    <View style={styles.wrapperControls}>
+      <TouchableOpacity 
+        style={styles.buttonPause} 
+        onPress={onPlayPause}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <span className="taime">{formatTime(currentTime)}</span>
-        <div className="bar-progress">
-          <div
-            className="progres"
-            style={{ width: `${(currentTime / duration) * 100}%` }}
-          ></div>
-        </div>
-        <span className="taime">{formatTime(duration - currentTime)}</span>
-      </div>
-    </div>
+        <FontAwesome 
+          name={isPlaying ? "pause" : "play"} 
+          size={16} 
+          color="white" 
+        />
+      </TouchableOpacity>
+
+      <View style={styles.barTime}>
+        <Text style={styles.time}>{formatTime(currentTime)}</Text>
+        
+        <Pressable 
+          style={styles.barProgress}
+          onPress={handleSeek}
+        >
+          <View style={styles.progressBackground}>
+            <View
+              style={[
+                styles.progress,
+                {
+                  width: `${((currentTime || 0) / (duration || 1)) * 100}%`,
+                },
+              ]}
+            />
+          </View>
+        </Pressable>
+
+        <Text style={styles.time}>
+          {formatTime(duration)}
+        </Text>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  wrapperControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  buttonPause: {
+    marginRight: 10,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#464747',
+    border: 'none',
+    borderRadius: '50%',
+    width: 40,
+    height: 40,
+  },
+  barTime: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  time: {
+    width: 45,
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 16,
+  },
+  barProgress: {
+    flex: 1,
+    height: 40,
+    justifyContent: 'center',
+    marginHorizontal: 5,
+  },
+  progressBackground: {
+    width: '100%',
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progress: {
+    height: '100%',
+    backgroundColor: '#fff',
+  },
+});
 
 export default VideoControls;
