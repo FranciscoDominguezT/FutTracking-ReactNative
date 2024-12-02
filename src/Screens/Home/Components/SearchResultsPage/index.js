@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import SearchCard from '../SearchCard';
 import Header from '../Header';
-import Footer from '../Footer';
+import Footer from './Footer';
 
 const SearchResultsPage = ({ route, navigation }) => {
   const [users, setUsers] = useState([]);
@@ -51,32 +51,33 @@ const SearchResultsPage = ({ route, navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header />
-      <ScrollView 
-        style={styles.scrollContainer}
-        onScroll={({ nativeEvent }) => {
-          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-          const isEndReached = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
-          if (isEndReached) {
-            handleEndReached();
-          }
-        }}
-        scrollEventThrottle={400}
-      >
-        {users.length > 0 ? (
-          <View style={styles.searchResults}>
-            {users.map((user) => (
-              <SearchCard key={user.id} user={user} />
-            ))}
-          </View>
-        ) : (
-          <Text style={styles.noResults}>No se encontraron resultados</Text>
-        )}
-        {loading && (
-          <View style={styles.loader}>
-            <ActivityIndicator size="large" color="#157446" />
-          </View>
-        )}
-      </ScrollView>
+      <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContentContainer} // Añadido
+          onScroll={({ nativeEvent }) => {
+            const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+            const isEndReached = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+            if (isEndReached) {
+              handleEndReached();
+            }
+          }}
+          scrollEventThrottle={400}
+        >
+          {users.length > 0 ? (
+            <View>
+              {users.map((user) => (
+                <SearchCard key={user.id} user={user} />
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.noResults}>No se encontraron resultados</Text>
+          )}
+          {loading && (
+            <View style={styles.loader}>
+              <ActivityIndicator size="large" color="#157446" />
+            </View>
+          )}
+        </ScrollView>
       <Footer />
     </SafeAreaView>
   );
@@ -88,7 +89,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff'
   },
   scrollContainer: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#fff'
+  },
+  scrollContentContainer: {
+    flexGrow: 1, // Permite que el contenido crezca dinámicamente
+    padding: 16,
   },
   searchResults: {
     flexGrow: 1,

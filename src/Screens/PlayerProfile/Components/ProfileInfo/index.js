@@ -98,7 +98,7 @@ const ProfileInfo = ({ usuario_id }) => {
         </View>
         <View style={styles.profileDetails}>
           <Text style={styles.profileName}>
-            {profile.nombre}{profile.apellido}
+            {profile.nombre} {profile.apellido}
           </Text>
           <Text style={styles.profileRole}>{profile.rol || 'Jugador'}</Text>
           <Text style={styles.profileLocation}>

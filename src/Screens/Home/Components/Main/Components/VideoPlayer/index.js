@@ -40,16 +40,18 @@ const VideoPlayer = ({ videoData, isPlaying, onPlayPause, onTimeUpdate, onDurati
   return (
     <TouchableWithoutFeedback onPress={handleScreenClick}>
       <View style={styles.container}>
-        <Video
-          ref={videoRef}
-          source={{ uri: videoData?.url }}
-          style={styles.playerImg}
-          shouldPlay={isPlaying}
-          isLooping={true}
-          resizeMode="cover"
-          onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-          useNativeControls={false}
-        />
+      <Video
+        ref={videoRef}
+        source={{ uri: videoData?.url }}
+        style={styles.playerImg}
+        shouldPlay={isPlaying}
+        isLooping={true}
+        resizeMode="cover"
+        onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+        useNativeControls={false}
+        volume={1.0} // Asegura que el volumen esté al máximo (1.0)
+        isMuted={false} // Asegura que no esté muteado
+      />
       </View>
     </TouchableWithoutFeedback>
   );

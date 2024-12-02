@@ -42,7 +42,7 @@ const SearchCard = ({ user }) => {
   return (
     <TouchableOpacity 
       style={styles.userCard}
-      onPress={() => navigation.navigate('PlayerProfile', { userId: user.id })}
+      onPress={() => navigation.navigate('PlayerProfile', { usuario_id: user.id })}
     >
       <Image
         source={{ uri: user.avatar_url || '/default-avatar.png' }}

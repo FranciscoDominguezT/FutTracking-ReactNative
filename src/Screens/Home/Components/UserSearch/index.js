@@ -95,9 +95,9 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     position: 'absolute',
-    right: 10,
-    top: '50%',
-    transform: [{ translateY: -10 }],
+    right: 1,  // Aumentar un poco el valor para mover más hacia la derecha
+    top: '38%', // Ajustar top para mover el botón más hacia arriba
+    transform: [{ translateY: -8 }], // Mover un poco hacia arriba (menos negativo que antes)
     padding: 8,
   },
   searchIcon: {

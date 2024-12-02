@@ -64,13 +64,18 @@ const Main = () => {
         const comentarioLikesResponse = await axios.get(`${API_BASE_URL}/videos/${videoId}/commentLikes`);
 
         const likesMap = comentarioLikesResponse.data.reduce((acc, like) => {
-          acc[like.comentarioid] = (acc[like.comentarioid] || 0) + 1;
+          acc[like.comentarioid] = parseInt(like.likes);
           return acc;
         }, {});
         setLikedComments(likesMap);
 
       } catch (error) {
-        console.error("Error al obtener datos del video:", error.response?.data || error.message);
+        console.error("Error completo al obtener datos del video:", error);
+        console.error("URL de la solicitud:", error.config?.url);
+        console.error("Método de la solicitud:", error.config?.method);
+        console.error("Código de estado:", error.response?.status);
+        console.error("Datos de la respuesta:", error.response?.data);
+        console.error("Mensaje de error:", error.message);
       }
     };
 

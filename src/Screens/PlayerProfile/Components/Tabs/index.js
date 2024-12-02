@@ -24,7 +24,7 @@ const Tabs = ({ activeTab, onTabChange }) => {
   return (
     <View style={styles.tabs}>
       <View style={[styles.tabIndicator, { transform: [{ translateX: tabPosition }] }]} />
-      {['Videos', 'Posteos', 'MisDatos'].map((tab, index) => (
+      {['Videos', 'Posteos', 'Mas Info', 'Contactar'].map((tab, index) => (
         <TouchableOpacity
           key={tab}
           ref={(el) => (tabRefs.current[index] = el)}
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     left: 0,
     height: 3,
     backgroundColor: '#157446',
-    width: '33.33%',
+    width: '25%',
     transition: 'transform 0.3s ease',
   },
 });

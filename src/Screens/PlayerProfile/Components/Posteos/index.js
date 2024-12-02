@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, Alert, Text, Image } from 'react-native';
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios';
-import PostDetail from '../PostDetail';
+import PlayerPostDetail from '../PlayerPostDetail';
 import NewCommentModal from '../NewCommentModal';
 import NewTweetModal from '../NewTweetModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -237,7 +237,7 @@ const Posteos = () => {
       />
 
       {selectedPost && (
-        <PostDetail
+        <PlayerPostDetail
           post={selectedPost}
           onClose={() => setSelectedPost(null)}
           onDelete={handleDeleteTweet}

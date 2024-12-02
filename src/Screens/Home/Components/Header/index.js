@@ -17,10 +17,11 @@ const Header = () => {
     const fetchAvatar = async () => {
       try {
         if (!token) {
-          console.error('No token found');
+          console.log('No token found. Skipping avatar fetch.');
+          setAvatarUrl(null); // Asegúrate de restablecer el estado si no hay token
           return;
         }
-
+  
         const response = await axios.get('https://open-moderately-silkworm.ngrok-free.app/api/user/avatar', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -28,10 +29,10 @@ const Header = () => {
         });
         setAvatarUrl(response.data.avatar_url);
       } catch (error) {
-        console.error('Error al obtener el avatar del usuario:', error);
+        console.error('Error al obtener el avatar del usuario:', error?.response?.data || error.message);
       }
     };
-
+  
     fetchAvatar();
   }, [token]);
 
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 24,
     height: 24,
-    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 10,
   },
 });

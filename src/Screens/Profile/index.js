@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { AuthContext } from '../../Context/auth-context';
 import Header from './Components/Header';
 import ProfileInfo from './Components/ProfileInfo';
@@ -14,17 +14,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('Videos');
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const getStoredTab = async () => {
-      const storedTab = await AsyncStorage.getItem('activeTab');
-      if (storedTab) {
-        setActiveTab(storedTab);
+    const initialize = async () => {
+      try {
+        const storedTab = await AsyncStorage.getItem('activeTab');
+        if (storedTab) {
+          setActiveTab(storedTab);
+        }
+      } catch (error) {
+        console.error('Error loading stored tab:', error);
+      } finally {
+        setIsLoading(false); // Finaliza la carga
       }
     };
 
-    getStoredTab();
+    initialize();
   }, []);
 
   const handleTabChange = async (tab) => {
@@ -36,6 +43,22 @@ const Profile = () => {
     setActiveTab('MisDatos');
     await AsyncStorage.setItem('activeTab', 'MisDatos');
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text>No se pudo cargar la información del usuario</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -58,6 +81,11 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
