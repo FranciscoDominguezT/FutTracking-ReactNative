@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Alert,
   StatusBar,
-  Platform
+  Platform,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,6 +17,8 @@ import { AuthContext } from '../../Context/auth-context';
 import { supabase } from '../../Configs/supabaseClient';
 import { useNavigation } from '@react-navigation/native';
 import BackgroundAnimation from './Animation/Animation';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 
 const Login = () => {
   const navigation = useNavigation(); // Agregar hook de navegación
@@ -26,6 +28,8 @@ const Login = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const { setUser, setToken, setAuthError, fetchUserData } = useContext(AuthContext);
+
+  const API_URL = 'https://open-moderately-silkworm.ngrok-free.app';
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -91,16 +95,38 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      WebBrowser.maybeCompleteAuthSession();
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://localhost:5001'}/home`,
+          redirectTo: 'io.supabase.futtracking://callback',
+          scopes: 'email profile',
+          queryParams: { prompt: 'select_account' },
         },
       });
-      if (error) throw error;
+  
+      if (error) {
+        console.error('Error OAuth:', error);
+        Alert.alert('Error', error.message);
+        return;
+      }
+  
+      // Importante: Abrir la URL de manera explícita
+      if (data?.url) {
+      const result = await WebBrowser.openAuthSessionAsync(
+        data.url, 
+        'io.supabase.futtracking://callback'
+      );
+
+      if (result.type === 'success') {
+        // La autenticación fue exitosa
+        console.log('Autenticación exitosa');
+      }
+      }
     } catch (error) {
-      console.error('Error durante el inicio de sesión con Google', error);
-      setAuthError('Error al iniciar sesión con Google');
+      console.error('Error durante el inicio de sesión con Google:', error);
+      Alert.alert('Error', 'No se pudo iniciar sesión con Google');
     }
   };
 
@@ -121,7 +147,7 @@ const Login = () => {
       <Text style={styles.title}>Iniciar sesión</Text>
       <Text style={styles.registerText}>
         Si no tienes una cuenta,{' '}
-        <Text style={styles.linkText} onPress={() => navigation.navigate('/register')}>
+        <Text style={styles.linkText} onPress={() => navigation.navigate('Register')}>
           regístrate aquí!
         </Text>
       </Text>
@@ -191,7 +217,7 @@ const Login = () => {
 
         <Text style={styles.rolText}>
           Si desea cambiar de rol,{' '}
-          <Text style={styles.linkText} onPress={() => navigation.navigate('/changeRol')}>
+          <Text style={styles.linkText} onPress={() => navigation.navigate('ChangeRol')}>
             haga click aquí!
           </Text>
         </Text>

@@ -36,6 +36,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  noVideosMessage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginVertical: 16,
+  },
   videoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

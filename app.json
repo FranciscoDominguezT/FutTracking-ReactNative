@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "my-app",
+    "scheme": "io.supabase.futtracking",
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",

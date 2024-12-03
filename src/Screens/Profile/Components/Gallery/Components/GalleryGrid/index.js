@@ -41,6 +41,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
   },
+  noVideosMessage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
   galleryItem: {
     width: '33.33%',
     aspectRatio: 3 / 4,

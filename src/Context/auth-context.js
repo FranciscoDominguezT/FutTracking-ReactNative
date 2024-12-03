@@ -78,33 +78,37 @@ export const AuthProvider = ({ children }) => {
     loadStoredToken();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Evento de autenticación:', event);
+      console.log('Evento de autenticación completo:', { event, session });
+      
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
         if (session?.user) {
-          console.log('Usuario de sesión:', session.user);
           try {
+            console.log('Datos de usuario de Google:', session.user);
+            const userMetadata = session.user.user_metadata;
+            
             const response = await axios.post(`${API_URL}/api/login/google-login`, {
-              name: session.user.user_metadata.full_name,
+              name: userMetadata.full_name || session.user.name || 'Usuario Google',
               email: session.user.email,
-              picture: session.user.user_metadata.avatar_url
+              picture: userMetadata.avatar_url || session.user.user_metadata.picture
             });
-
+    
             const newToken = response.data.token;
-            console.log('Nuevo token recibido:', newToken);
+            console.log('Token recibido:', newToken);
+            
             await AsyncStorage.setItem('token', newToken);
             setToken(newToken);
-
+    
             await fetchUserData(newToken);
+            navigation.navigate('Home');
           } catch (error) {
-            console.error("Error updating user data:", error.response?.data || error.message);
-            setAuthError("Error updating user data: " + (error.response?.data?.details || error.message));
+            console.error("Error completo en Google login:", {
+              message: error.message,
+              response: error.response?.data,
+              status: error.response?.status
+            });
+            setAuthError(`Error en login de Google: ${error.message}`);
           }
         }
-      } else if (event === 'SIGNED_OUT') {
-        console.log('Usuario cerró sesión');
-        setUser(null);
-        setToken(null);
-        await AsyncStorage.removeItem('token');
       }
     });
 
