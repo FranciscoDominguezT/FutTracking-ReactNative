@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1da1f2',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
   },
 });

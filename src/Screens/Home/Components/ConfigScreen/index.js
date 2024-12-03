@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 
 const ConfigScreen = ({ navigation }) => {
-    const { logout } = useContext(AuthContext);
+    const { logout, user } = useContext(AuthContext);
     const [isActive, setIsActive] = React.useState(true);
     const [isNotificationsMuted, setIsNotificationsMuted] = React.useState(false);
 
@@ -28,18 +28,24 @@ const ConfigScreen = ({ navigation }) => {
 
             {/* Información del Usuario */}
             <View style={styles.userInfoContainer}>
-                <Image source={{ uri: "https://via.placeholder.com/48" }} style={styles.userAvatar} />
-                <Text style={styles.userName}>Nicolás Fernandez</Text>
+                <Image 
+                    source={{ uri: user?.avatar_url || "https://via.placeholder.com/48" }} 
+                    style={styles.userAvatar} 
+                />
+                <Text style={styles.userName}>{user?.nombre || 'Usuario'}{user?.apellido || 'Apellido'}</Text>
             </View>
 
             {/* Opciones de Configuración */}
             <View style={styles.configBody}>
                 <Text style={styles.configSectionTitle}>Configuración de la cuenta</Text>
                 <View style={styles.configOptions}>
-                    <TouchableOpacity style={styles.option}>
-                        <Text>Editar perfil</Text>
-                        <Ionicons name="chevron-forward" size={24} />
-                    </TouchableOpacity>
+                <TouchableOpacity 
+                    style={styles.option}
+                    onPress={() => navigation.navigate('Profile')}
+                >
+                    <Text>Editar perfil</Text>
+                    <Ionicons name="chevron-forward" size={24} />
+                </TouchableOpacity>
                     <TouchableOpacity style={styles.option}>
                         <Text>Cambiar contraseña</Text>
                         <Ionicons name="chevron-forward" size={24} />

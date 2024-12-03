@@ -18,10 +18,10 @@ const Header = () => {
       try {
         if (!token) {
           console.log('No token found. Skipping avatar fetch.');
-          setAvatarUrl(null); // Asegúrate de restablecer el estado si no hay token
+          setAvatarUrl(null);
           return;
         }
-  
+
         const response = await axios.get('https://open-moderately-silkworm.ngrok-free.app/api/user/avatar', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -32,20 +32,27 @@ const Header = () => {
         console.error('Error al obtener el avatar del usuario:', error?.response?.data || error.message);
       }
     };
-  
+
     fetchAvatar();
   }, [token]);
 
   return (
     <View style={styles.header}>
+      {/* Avatar */}
       <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
         <Image
           source={avatarUrl ? { uri: avatarUrl } : user}
           style={styles.profileImg}
         />
       </TouchableOpacity>
-      <UserSearch />
-      <View style={styles.icons}>
+
+      {/* Search */}
+      <View style={styles.searchContainer}>
+        <UserSearch />
+      </View>
+
+      {/* Icons */}
+      <View style={styles.iconsContainer}>
         <TouchableOpacity onPress={() => navigation.navigate('FilterScreen')}>
           <Image source={filter} style={styles.icon} />
         </TouchableOpacity>
@@ -62,29 +69,33 @@ export default Header;
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#fff',
-    zIndex: 2,
-    borderTopLeftRadius: 8, // Para mantener los bordes redondeados superiores
-    borderTopRightRadius: 8,
+    height: 60, // Altura uniforme para el header
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
   },
   profileImg: {
-    width: 45,  // Sin comillas, es un número
-    height: 45,  // Sin comillas, es un número
-    borderRadius: 25,  // Mitad del tamaño para hacer un círculo
-    borderWidth: 2,  // En lugar de 'border', usa 'borderWidth'
-    borderColor: '#157446',  // En lugar de 'border', usa 'borderColor'
-    marginLeft: 10,
-    marginTop: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#157446',
   },
-  icons: {
+  searchContainer: {
+    flex: 1, // Ocupa el espacio disponible entre los íconos
+    marginHorizontal: 10,
+    justifyContent: 'center', // Centra el buscador verticalmente
+  },
+  iconsContainer: {
     flexDirection: 'row',
+    alignItems: 'center', // Centra los íconos verticalmente
   },
   icon: {
     width: 24,
     height: 24,
-    marginRight: 10,
-    marginTop: 10,
+    marginLeft: 10,
   },
 });

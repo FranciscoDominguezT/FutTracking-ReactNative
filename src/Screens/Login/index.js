@@ -95,15 +95,23 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      WebBrowser.maybeCompleteAuthSession();
+      await WebBrowser.maybeCompleteAuthSession();
+      const redirectUrl = Linking.createURL('/callback')
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'io.supabase.futtracking://callback',
+          redirectTo: redirectUrl,
           scopes: 'email profile',
-          queryParams: { prompt: 'select_account' },
-        },
+          queryParams: { 
+            prompt: 'select_account',
+            // Añadir las URLs de callback configuradas en Google Console
+            redirect_uri: [
+              'https://cryvkjhhbrsdmffgqmbj.supabase.co/auth/v1/callback',
+              'https://open-moderately-silkworm.ngrok-free.app/auth/v1/callback'
+            ].join(',')
+          }
+        }
       });
   
       if (error) {
@@ -114,15 +122,12 @@ const Login = () => {
   
       // Importante: Abrir la URL de manera explícita
       if (data?.url) {
-      const result = await WebBrowser.openAuthSessionAsync(
-        data.url, 
-        'io.supabase.futtracking://callback'
-      );
+        const result = await WebBrowser.openAuthSessionAsync(
+          data.url, 
+          redirectUrl
+        );
 
-      if (result.type === 'success') {
-        // La autenticación fue exitosa
-        console.log('Autenticación exitosa');
-      }
+        console.log('Resultado del login:', result);
       }
     } catch (error) {
       console.error('Error durante el inicio de sesión con Google:', error);

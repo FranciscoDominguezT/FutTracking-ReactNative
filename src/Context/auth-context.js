@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { supabase } from '../Configs/supabaseClient';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AuthContext = createContext({
@@ -20,6 +21,8 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [authError, setAuthError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const navigation = useNavigation();
 
   const API_URL = 'https://open-moderately-silkworm.ngrok-free.app';
 
@@ -99,7 +102,10 @@ export const AuthProvider = ({ children }) => {
             setToken(newToken);
     
             await fetchUserData(newToken);
-            navigation.navigate('Home');
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Home' }]
+            });
           } catch (error) {
             console.error("Error completo en Google login:", {
               message: error.message,
@@ -115,7 +121,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       authListener?.unsubscribe();
     };
-  }, [fetchUserData]);
+  }, [fetchUserData, navigation]);
 
   const logout = async () => {
     try {

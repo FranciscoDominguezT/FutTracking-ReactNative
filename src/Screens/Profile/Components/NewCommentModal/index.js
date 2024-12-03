@@ -22,12 +22,13 @@ const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId =
         })
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
         throw new Error('Error creating comment');
       }
 
-      const newComment = await response.json();
-      onCommentCreated(newComment);
+      onCommentCreated(responseData);
       setContent('');
       onClose();
     } catch (error) {
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1da1f2',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
   },
 });

@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../Context/auth-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -43,25 +44,32 @@ const Register = () => {
       return;
     }
 
-    try {
-      const response = await axios.post('https://open-moderately-silkworm.ngrok-free.app/api/register', formData);
-      await AsyncStorage.setItem('token', response.data.token);
-      navigation.navigate('Home');
-    } catch (error) {
-      setError(error.response?.data?.error || 'Error al registrar');
-      setAuthError(error.response?.data?.error || 'Error al registrar');
+    if (!formData.nombre || !formData.apellido || !formData.email || !formData.password) {
+      setError('Por favor complete todos los campos');
+      return;
     }
+
+      try {
+        const response = await axios.post('https://open-moderately-silkworm.ngrok-free.app/api/register', {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (response.data.token) {
+        await AsyncStorage.setItem('token', response.data.token);
+        navigation.navigate('Login');
+      } else {
+        setError('No se recibió un token válido');
+      }
+    } catch (error) {
+    console.error('Registration Error:', error.response?.data);
+    setError(error.response?.data?.message || error.response?.data?.error || 'Error al registrar');
+    setAuthError(error.response?.data?.message || error.response?.data?.error || 'Error al registrar');
+  }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      // Lógica para iniciar sesión con Google
-      navigation.navigate('Home');
-    } catch (error) {
-      console.error('Error durante el inicio de sesión con Google', error);
-      setAuthError('Error al iniciar sesión con Google');
-    }
-  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -80,7 +88,7 @@ const Register = () => {
           <Feather name="user" size={18} color="#ddd" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Nombre"
+            placeholder="Escribi tu nombre"
             value={formData.nombre}
             onChangeText={(text) => handleChange('nombre', text)}
           />
@@ -90,7 +98,7 @@ const Register = () => {
           <Feather name="user" size={18} color="#ddd" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Apellido"
+            placeholder="Escribi tu apellido"
             value={formData.apellido}
             onChangeText={(text) => handleChange('apellido', text)}
           />
@@ -100,7 +108,7 @@ const Register = () => {
           <Feather name="mail" size={18} color="#ddd" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder="Escribi tu correo electrónico"
             keyboardType="email-address"
             value={formData.email}
             onChangeText={(text) => handleChange('email', text)}
@@ -111,7 +119,7 @@ const Register = () => {
           <Feather name="lock" size={18} color="#ddd" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Contraseña"
+            placeholder="Escribi tu contraseña"
             secureTextEntry={!passwordVisible}
             value={formData.password}
             onChangeText={(text) => handleChange('password', text)}
@@ -129,7 +137,7 @@ const Register = () => {
           <Feather name="lock" size={18} color="#ddd" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Confirmar Contraseña"
+            placeholder="Escribi tu contraseña"
             secureTextEntry={!confirmPasswordVisible}
             value={formData.confirmPassword}
             onChangeText={(text) => handleChange('confirmPassword', text)}
@@ -159,13 +167,6 @@ const Register = () => {
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Registrarse</Text>
       </TouchableOpacity>
-      <Text style={styles.continueText}>O continúa con</Text>
-      <View style={styles.socialLogin}>
-        <TouchableOpacity style={styles.socialButton} onPress={handleGoogleLogin}>
-          <Image source={require('./images/icons8-logo-de-google-50.png')} style={styles.socialIcon} />
-          <Text style={styles.socialButtonText}>Iniciar sesión con Google</Text>
-        </TouchableOpacity>
-      </View>
     </ScrollView>
   );
 };

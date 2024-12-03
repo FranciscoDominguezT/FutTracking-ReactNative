@@ -1,12 +1,36 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
-import { FontAwesome } from 'react-native-vector-icons/FontAwesome'; // Cambiado aquí
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Alert,
+} from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import * as Clipboard from 'expo-clipboard';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { Linking } from 'react-native';
 
 const ShareMenu = ({ onClose, videoUrl }) => {
-  const handleDownload = () => {
-    Alert.alert('Descarga', 'La función de descarga no está disponible en dispositivos móviles.');
+  const handleDownload = async () => {
+    try {
+      const fileUri = `${FileSystem.documentDirectory}video.mp4`;
+      const downloadResumable = FileSystem.createDownloadResumable(
+        videoUrl,
+        fileUri
+      );
+
+      const { uri } = await downloadResumable.downloadAsync();
+      if (Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri);
+      } else {
+        Alert.alert('Descarga completa', `Archivo guardado en ${uri}`);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo descargar el video.');
+    }
   };
 
   const handleCopyLink = async () => {
@@ -15,33 +39,20 @@ const ShareMenu = ({ onClose, videoUrl }) => {
   };
 
   return (
-    <View style={styles.shareMenu} onTouchStart={(e) => e.stopPropagation()}>
+    <View style={styles.shareMenu}>
       <Text style={styles.shareTitle}>Compartir video</Text>
-      <View style={styles.shareSubtitleContainer}>
-        <FontAwesome name="envelope" style={styles.envelope} />
-        <Text style={styles.shareSubtitle}>Enviar vía Mensaje Directo</Text>
-      </View>
       <View style={styles.shareIcons}>
-        {[  // Aquí se mantienen los iconos de compartir
+        {[
           {
             uri: 'https://cdn-icons-png.freepik.com/256/3983/3983877.png?semt=ais_hybrid',
             label: 'WhatsApp',
-            onPress: () => Linking.openURL(`whatsapp://send?text=${videoUrl}`)
+            onPress: () =>
+              Linking.openURL(`whatsapp://send?text=¡Mira este video! ${videoUrl}`),
           },
           {
             uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png',
             label: 'Telegram',
-            onPress: () => Linking.openURL(`tg://msg_url?url=${videoUrl}`)
-          },
-          {
-            uri: 'https://cdn1.iconfinder.com/data/icons/logotypes/32/circle-linkedin-512.png',
-            label: 'LinkedIn',
-            onPress: () => Linking.openURL(`https://www.linkedin.com/sharing/share-offsite/?url=${videoUrl}`)
-          },
-          {
-            uri: 'https://static-00.iconduck.com/assets.00/gmail-icon-1024x1024-09wrt8am.png',
-            label: 'Gmail',
-            onPress: () => Linking.openURL(`mailto:?body=${videoUrl}`)
+            onPress: () => Linking.openURL(`tg://msg_url?url=${videoUrl}`),
           },
         ].map((icon, index) => (
           <TouchableOpacity
@@ -56,20 +67,16 @@ const ShareMenu = ({ onClose, videoUrl }) => {
       </View>
       <View style={styles.shareIcons}>
         <TouchableOpacity style={styles.shareIconContainer} onPress={handleCopyLink}>
-          <View style={styles.shareIcon}>
-            <FontAwesome name="link" /> {/* Cambiado aquí */}
-          </View>
+          <FontAwesome name="link" size={24} color="#fff" />
           <Text>Copiar enlace</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.shareIconContainer} onPress={handleDownload}>
-          <View style={styles.shareIcon}>
-            <FontAwesome name="download" /> {/* Cambiado aquí */}
-          </View>
+          <FontAwesome name="download" size={24} color="#fff" />
           <Text>Guardar</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-        <Text>Cancelar</Text>
+        <Text style={{ color: '#fff' }}>Cancelar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -78,8 +85,8 @@ const ShareMenu = ({ onClose, videoUrl }) => {
 const styles = StyleSheet.create({
   shareMenu: {
     position: 'absolute',
-    bottom: 0,
-    left: '50%',
+    bottom: 50,
+    left: '13%',
     transform: [{ translateX: -50 }],
     width: '100%',
     maxWidth: 450,

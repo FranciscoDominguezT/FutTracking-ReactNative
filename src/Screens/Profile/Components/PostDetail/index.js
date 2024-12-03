@@ -11,13 +11,15 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState(null);
   const [likedComments, setLikedComments] = useState({});
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     if (post && post.post_id) {
       fetchComments();
       setLocalPost(post);
+      setIsLiked(likedPosts[post.post_id] || false);
     }
-  }, [post]);
+  }, [post, likedPosts]);
 
   const fetchComments = async () => {
     try {
@@ -30,15 +32,18 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
           },
         }
       );
+      console.log('Fetched comments:', response.data);
       setComments(response.data);
     } catch (error) {
-      console.error('Error fetching comments:', error);
+      console.error('Error fetching comments:', error.response?.data || error.message);
+      Alert.alert('Error', 'No se pudieron cargar los comentarios');
     }
   };
 
   const handleLocalLike = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
+  
       const response = await axios.put(
         `https://open-moderately-silkworm.ngrok-free.app/api/posts/${localPost.post_id}/like`,
         {},
@@ -48,15 +53,15 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
           },
         }
       );
+
+      const data = response.data;
   
-      // Actualiza el estado del post basándote en la respuesta del servidor.
-      setLocalPost((prevPost) => ({
+      setLocalPost(prevPost => ({
         ...prevPost,
-        likes: response.data.likes, // Actualiza con los likes del servidor.
+        likes: data.likes
       }));
   
-      // Si es necesario, actualiza también el estado global.
-      if (onLike) onLike(localPost.post_id);
+      onLike(localPost.post_id);
     } catch (error) {
       console.error('Error al likear el post:', error);
     }
@@ -86,8 +91,12 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
   };
 
   const handleCommentCreated = (newComment) => {
-    setComments(prevComments => [...prevComments, newComment]);
-    fetchComments(); // Refetch to ensure we have the latest data
+    console.log('New comment created:', newComment);
+    setComments(prevComments => {
+      console.log('Previous comments:', prevComments);
+      return [...prevComments, newComment];
+    });
+    fetchComments(); // Refetch para asegurar consistencia
   };
 
   const handleCommentDelete = async (commentId) => {
@@ -187,9 +196,13 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
           <View style={styles.postFooter}>
             <TouchableOpacity
               onPress={handleLocalLike}
-              style={[styles.actionButton, likedPosts[localPost.post_id] && styles.likedButton]}
+              style={[styles.actionButton, isLiked && styles.likedButton]}
             >
-              <Icon name="heart" size={20} color={likedPosts[localPost.post_id] ? '#e0245e' : '#657786'} />
+              <Icon 
+                name="heart" 
+                size={20} 
+                color={isLiked ? '#e0245e' : '#657786'} 
+              />
               <Text>{localPost.likes || 0}</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -210,18 +223,16 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
           {renderComments(localPost.post_id)}
         </ScrollView>
 
-        <Modal visible={isCommentModalOpen} onRequestClose={() => setIsCommentModalOpen(false)}>
-          <NewCommentModal
-            isOpen={isCommentModalOpen}
-            onClose={() => {
-              setIsCommentModalOpen(false);
-              setSelectedParentId(null);
-            }}
-            onCommentCreated={handleCommentCreated}
-            postId={localPost.post_id}
-            parentId={selectedParentId}
-          />
-        </Modal>
+        <NewCommentModal
+          isOpen={isCommentModalOpen}
+          onClose={() => {
+            setIsCommentModalOpen(false);
+            setSelectedParentId(null);
+          }}
+          onCommentCreated={handleCommentCreated}
+          postId={localPost.post_id}
+          parentId={selectedParentId}
+        />
       </View>
     </View>
   );

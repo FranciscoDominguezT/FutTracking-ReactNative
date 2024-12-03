@@ -97,8 +97,8 @@ const FullScreenVideo = ({
 const styles = StyleSheet.create({
   fullscreenVideo: {
     position: 'absolute',
-    top: -340, // Valor fijo en lugar de porcentaje
-    left: 20, // Valor fijo en lugar de porcentaje
+    top: -290, // Valor fijo en lugar de porcentaje
+    left: 40, // Valor fijo en lugar de porcentaje
     width: 350, // Ancho fijo
     height: 750, // Alto fijo
     backgroundColor: 'black',
