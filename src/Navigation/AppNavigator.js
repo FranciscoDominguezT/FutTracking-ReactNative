@@ -15,6 +15,7 @@ import ChangeRol from '../Screens/ChangeRol';
 import MailJugador from '../Screens/ChangeRol/Components/MailJugador';
 import MailReclutador from '../Screens/ChangeRol/Components/MailReclutador';
 import Jugador from '../Screens/ChangeRol/Components/Jugador';
+import MessageScreen from '../Screens/Messages/Components/MessageScreen';
 // import Reclutador from '../Screens/ChangeRol/components/Reclutador';
 
 
@@ -43,6 +44,15 @@ const AppNavigator = () => {
               title: `Perfil de Jugador: ${route.params?.usuario_id || "Perfil"}`,
               headerShown: false // Ocultar el encabezado
           })}
+      />
+      <Stack.Screen 
+        name="MessageScreen" 
+        component={MessageScreen} 
+        options={({ route }) => ({
+          headerShown: false,
+          // Optional: You can add a dynamic title if you want
+          title: route.params?.selectedUser?.nombre || "Mensaje"
+        })}
       />
       {/* 
 

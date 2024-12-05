@@ -51,19 +51,9 @@ const SearchCard = ({ user }) => {
       <View style={styles.userInfo}>
         <Text style={styles.userName}>{`${user.nombre} ${user.apellido}`}</Text>
         <Text style={styles.userStats}>
-          {`${user.seguidores} seguidores · ${user.videos} videos`}
+          Toca para chatear
         </Text>
       </View>
-      {user.id !== currentUser?.id && (
-        <TouchableOpacity
-          style={[styles.followButton, isFollowing && styles.followingButton]}
-          onPress={handleFollowToggle}
-        >
-          <Text style={styles.followButtonText}>
-            {isFollowing ? 'Siguiendo' : 'Seguir'}
-          </Text>
-        </TouchableOpacity>
-      )}
     </TouchableOpacity>
   );
 };
