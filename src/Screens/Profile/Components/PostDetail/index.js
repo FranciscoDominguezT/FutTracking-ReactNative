@@ -193,29 +193,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
 
           <Text style={styles.postContent}>{localPost.contenido}</Text>
 
-          <View style={styles.postFooter}>
-            <TouchableOpacity
-              onPress={handleLocalLike}
-              style={[styles.actionButton, isLiked && styles.likedButton]}
-            >
-              <Icon 
-                name="heart" 
-                size={20} 
-                color={isLiked ? '#e0245e' : '#657786'} 
-              />
-              <Text>{localPost.likes || 0}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedParentId(localPost.post_id);
-                setIsCommentModalOpen(true);
-              }}
-              style={styles.actionButton}
-            >
-              <Icon name="chatbubble" size={20} color="#657786" />
-              <Text>{comments.filter(c => c.parent_id === localPost.post_id).length}</Text>
-            </TouchableOpacity>
-          </View>
+          
         </View>
 
         <ScrollView style={styles.commentsSection}>

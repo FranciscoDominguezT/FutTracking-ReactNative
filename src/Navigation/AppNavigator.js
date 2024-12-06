@@ -17,6 +17,7 @@ import MailReclutador from '../Screens/ChangeRol/Components/MailReclutador';
 import Jugador from '../Screens/ChangeRol/Components/Jugador';
 import MessageScreen from '../Screens/Messages/Components/MessageScreen';
 // import Reclutador from '../Screens/ChangeRol/components/Reclutador';
+import Camara from '../Screens/Camara';
 
 
 
@@ -54,6 +55,7 @@ const AppNavigator = () => {
           title: route.params?.selectedUser?.nombre || "Mensaje"
         })}
       />
+      <Stack.Screen name="Camara" component={Camara} options={{ headerShown: false }} />
       {/* 
 
 

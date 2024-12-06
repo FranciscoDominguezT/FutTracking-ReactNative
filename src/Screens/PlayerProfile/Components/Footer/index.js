@@ -20,7 +20,10 @@ const Footer = () => {
                 <Image source={comments} style={styles.footerIconIcon} />
                 <Text style={styles.text}>Mensajes</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.footerIcon}>
+            <TouchableOpacity 
+                style={styles.footerIcon} 
+                onPress={() => navigation.navigate('Camara')}
+            >
                 <Image source={camera} style={styles.footerIconIcon} />
                 <Text style={styles.text}>Cámara</Text>
             </TouchableOpacity>
